@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Страница с цветными плитками</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .tiles-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px;
+        }
+
+        .tile {
+            flex: 1 0 300px;
+            padding: 20px;
+            border-radius: 10px;
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tile:hover {
+            transform: scale(1.05);
+        }
+
+        .tile h2 {
+            margin-top: 0;
+            color: rgb(17, 9, 50);
+            text-align: center;
+        }
+
+        .tile p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tile-1 {
+            background-color: #31dccd;
+        }
+
+        .tile-2 {
+            background-color: #f69b5f;
+        }
+
+        .tile-3 {
+            background-color: #cf839a;
+        }
+
+        .tile-4 {
+            background-color: #7bb0d3;
+        }
+
+        a {
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="tiles-container">
+        <div class="tile tile-1">
+            <a href="/pasport_print">
+                <h2>Формирование паспортов и ПСИ</h2>
+            </a>
+        </div>
+        <div class="tile tile-2">
+            <a href="/si_view_page">
+                <h2>Метрологическое обеспечение производства</h2>
+            </a>
+        </div>
+        <div class="tile tile-3">
+            <h2>Обеспечение качества</h2>
+
+        </div>
+        <div class="tile tile-4">
+            <h2>Производство</h2>
+
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>График поверки средств измерения</title>
+    <style>
+        .gantt {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            background: repeating-linear-gradient(to right,
+                    #513939,
+                    #ddd 2px,
+                    #fff 2px,
+                    #fff 8.333%);
+        }
+
+
+        .gantt .head {
+            text-align: center;
+            font-weight: 700;
+            color: #fff;
+            background: #103a99;
+            padding: 10px;
+        }
+
+
+        .gantt div {
+            padding: 10px;
+        }
+
+
+        .gantt div[style] {
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container-fluid" style="text-align: center;">
+        <h2> График поверки оборудования на 2025 год</h2>
+    </div>
+    <div class="gantt">
+        <!-- Дни недели -->
+        <div class="head">Январь</div>
+        <div class="head">Февраль</div>
+        <div class="head">Март</div>
+        <div class="head">Апрель</div>
+        <div class="head">Май</div>
+        <div class="head">Июнь</div>
+        <div class="head">Июль</div>
+        <div class="head">Август</div>
+        <div class="head">Сентябрь</div>
+        <div class="head">Октябрь</div>
+        <div class="head">Ноябрь</div>
+        <div class="head">Декабрь</div>
+
+        <!-- Задачи -->
+        {% for result in results %}
+        <!-- new Date().getMonth() + 1 -->
+        <a href="si/{{result[0]}}" class="button"
+            style="text-decoration: none; color: black; text-align: center; margin: 5px; background:  {{loop.cycle('#4682B4', '#008080', '#AFEEEE', )}} ; grid-row: {{loop.index0+2}}; grid-column: {{result[8].month}} / span 1">
+            {{result[1],result[2], result[5] }}
+        </a>
+
+        {% endfor %}
+    </div>
+</body>
+
+</html>

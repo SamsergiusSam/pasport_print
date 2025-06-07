@@ -18,8 +18,8 @@ def api_requst(serialNumbers):
     print(len(apiInfos))
 
 
-startNumber = 10240034
-finishNumber = 10240034
+startNumber = 10240047
+finishNumber = 10240049
 numbers = list()
 for i in range(startNumber, finishNumber+1):
     numbers.append(i)

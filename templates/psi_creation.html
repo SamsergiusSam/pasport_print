@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <title>Формирование ПСИ</title>
+    <style>
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+
+</head>
+
+
+
+
+<body>
+    <div class="container-fluid">
+        <h1>
+            Формирование ПСИ
+        </h1>
+        <form method="post" class="form-control">
+            <input type="test" name="start_number" class="form-control" placeholder="Начальный номер"><br>
+            <input type="test" name="finish_number" class="form-control" placeholder="Конечный номер"><br>
+            <form action="/psi_creation">
+                <button id="btn_psi" class="btn btn-success" type="submit">Создать ПСИ</button>
+            </form>
+            <form action="pasport_print">
+                <button id="btn_pasport" class="btn btn-success disabled" type="submit">Создать файл паспорта</button>
+            </form>
+        </form>
+    </div>
+    <script>
+        document.getElementById('btn_psi').addEventListener('click', function () {
+            document.getElementById('btn_pasport').removeAttribute('disabled');
+        });
+    </script>
+</body>
+
+</html>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Страница с цветными плитками</title>
+    <title>Качество</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -73,25 +73,17 @@
 <body>
     <div class="tiles-container">
         <div class="tile tile-1">
-            <a href="/pasport_print">
-                <h2>Формирование паспортов и ПСИ</h2>
+            <a href="{{url_for('qa.inc_insp_total')}}">
+                <h2>Перечень продукции, подлежащей входному контролю</h2>
             </a>
         </div>
         <div class="tile tile-2">
-            <a href="/si_view_page">
-                <h2>Метрологическое обеспечение производства</h2>
+            <a href="">
+                <h2>Проведение входного контроля</h2>
             </a>
         </div>
-        <div class="tile tile-3">
-            <a href="{{url_for('qa.qa_main_page')}}">
-                <h2>Обеспечение качества</h2>
-            </a>
-        </div>
-        <div class="tile tile-4">
-            <a href="{{url_for('production_page')}}">
-                <h2>Производство</h2>
-            </a>
-        </div>
+
+
     </div>
 </body>
 

@@ -1,0 +1,158 @@
+{
+    "apn": [
+        1,
+        "internet.beeline.ru"
+    ],
+    "login": [
+        2,
+        "beeline"
+    ],
+    "password": [
+        3,
+        "beeline"
+    ],
+    "neo_server_adress": [
+        19,
+        "194.87.147.191:8500"
+    ],
+    "mqtt_server_adress": [
+        64,
+        ""
+    ],
+    "minimal_signal_level": [
+        40045,
+        6
+    ],
+    "minimal_temp_for_gps": [
+        40046,
+        -20
+    ],
+    "fix_connection_attempt": [
+        40075,
+        1
+    ],
+    "year": [
+        9701,
+        2021
+    ],
+    "month": [
+        9702,
+        1
+    ],
+    "day": [
+        9703,
+        1
+    ],
+    "hour": [
+        9704,
+        13
+    ],
+    "minute": [
+        9705,
+        24
+    ],
+    "second": [
+        9706,
+        0
+    ],
+    "dat_time_save": [
+        9707,
+        1
+    ],
+    "main_eror_1": [
+        4011,
+        "true"
+    ],
+    "main_eror_2": [
+        4013,
+        "true"
+    ],
+    "main_eror_3": [
+        4014,
+        "true"
+    ],
+    "main_eror_4": [
+        4015,
+        "true"
+    ],
+    "main_eror_5": [
+        4021,
+        "true"
+    ],
+    "main_eror_6": [
+        4022,
+        "true"
+    ],
+    "main_eror_7": [
+        4030,
+        "true"
+    ],
+    "main_eror_8": [
+        4033,
+        "true"
+    ],
+    "main_eror_9": [
+        4035,
+        "true"
+    ],
+    "main_eror_10": [
+        4038,
+        "true"
+    ],
+    "allways_on_display": [
+        40023,
+        0
+    ],
+    "menu_auto_rotation": [
+        40024,
+        0
+    ],
+    "work_flow_indication": [
+        40044,
+        0
+    ],
+    "gas_detection": [
+        40078,
+        0
+    ],
+    "temperature_period": [
+        40039,
+        60
+    ],
+    "serial_number": [
+        40035,
+        ""
+    ],
+    "meter_size": [
+        40049,
+        ""
+    ],
+    "valve_type": [
+        40060,
+        0
+    ],
+    "valve_position": [
+        40061,
+        "0"
+    ],
+    "Cp": [
+        40029,
+        "1.2345"
+    ],
+    "system_eror_1": [
+        4012,
+        "true"
+    ],
+    "system_eror_2": [
+        4016,
+        "true"
+    ],
+    "main_settings_save": [
+        4001,
+        "true"
+    ],
+    "system_settings_save": [
+        4005,
+        "true"
+    ]
+}

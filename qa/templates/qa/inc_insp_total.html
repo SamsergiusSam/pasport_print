@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <title>si_list</title>
+    <title>Перечень входной контроль</title>
     <style>
         .table {
             width: 100%;
@@ -75,9 +75,8 @@
 
 
     <div class="container-fluid">
-        <h1 style="margin-bottom: 20px; text-align: center;">Список метрологического, испытательного и технологического
-            оборудования ООО ""
-        </h1>
+        <h3 style="margin-bottom: 20px; text-align: center;">Перечень продукции, подлежащей входному контролю
+        </h3>
 
         <!-- Форма фильтрации -->
         <!-- <form method="GET">
@@ -102,12 +101,9 @@
 
     </div>
     <div style="margin-bottom: 20px;">
-        <a href="/si_creation">
-            <button id="si_creation" class="btn btn-success " style="margin-right: 50px; margin-left: 20px;">Добавить
-                оборудование</button>
-        </a>
-        <a href="/si_verification_list">
-            <button id="si_creation" class="btn btn-success">График поверки на год</button>
+        <a href="/qa/inc_insp_create">
+            <button id="inc_insp_add" class="btn btn-success " style="margin-right: 50px; margin-left: 20px;">Добавить
+                позицию в перечень</button>
         </a>
     </div>
 
@@ -115,47 +111,40 @@
         <table class="table table-striped table-bordered table-hover">
             <thead style="text-align: center;">
                 <tr>
-                    <th>Имя</th>
-                    <th>Тип</th>
-                    <th>Серийный номер</th>
-                    <th>Изготовитель</th>
-                    <th>Инвентарный номер</th>
-                    <th>Год изготовления</th>
-                    <th>Ссылка на Аршин</th>
-                    <th>Дата очередной поверки</th>
-                    <th>Группа оборудования</th>
-                    <th></th>
+                    <th>Низвание детали</th>
+                    <th>Номер чертежа</th>
+                    <th>Применяемость</th>
+                    <th>Контролируемые параметры</th>
+                    <th>Вид контроля</th>
+                    <th>процент выборки</th>
+                    <th>Средства измерения
+                        или номативный документ
+                    </th>
+                    <th>Наименование службы, проводящий входной контроль</th>
+                    <th>Место проведения входного контроля</th>
+
+                    <th>Указание о маркировки продукции по результатам контроля</th>
                 </tr>
             </thead>
             <tbody style="text-align: center;">
                 {% for result in results %}
                 <tr>
-                    <td>{{ result.name }}</td>
-                    <td>{{ result.type }}</td>
-                    <td>{{ result.serial_number }}</td>
-                    <td>{{ result.produser }}</td>
-                    <td>{{ result.inv_number }}</td>
-                    <td>{{ result.production_year }}</td>
-                    <td>
-                        <a href="{{ result.verification_link }}" target="_blank">
-                            <div>
-                                {{ result.verification_link }}
-                            </div>
-
-                        </a>
-                    </td>
-                    <td>{{ result.next_verification_date }}</td>
-                    <td>{{ result.group }}</td>
-                    <td>
-                        <a href="si/{{result.id}}" class="button" style="text-decoration: none;">>>></a>
-                    </td>
-
+                    <td>{{ result.part_name }}</td>
+                    <td>{{ result.drawing_number }}</td>
+                    <td>{{ result.for_product }}</td>
+                    <td>{{ result.param_to_control }}</td>
+                    <td>{{ result.type_of_control }}</td>
+                    <td>{{ result.per_cent_of_control }}</td>
+                    <td>{{ result.used_si_to_control }}</td>
+                    <td>{{ result.department }}</td>
+                    <td>{{ result.place_of_control }}</td>
+                    <td>{{ result.action_after_control }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    <button onclick="printTable()">Распечатать список оборудования</button>
+    <button onclick="printTable()">Распечатать перечень продукции</button>
 
     <script>
         function printTable() {

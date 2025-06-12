@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <title>inc_insp</title>
+</head>
+
+<body>
+    <h3>
+        Добавление позиции в перечень продукции,
+        подлежащей входному контролю
+    </h3>
+
+    <form method="post" class="form-control">
+        <div class="row mb-4 mt-4">
+            <div class="col-4">
+                {{ form.hidden_tag() }}
+                {{form.part_name.label()}} {{form.part_name()}}
+            </div>
+            <div class="col-4">
+                {{form.drawing_number.label()}} {{form.drawing_number()}}
+            </div>
+            <div class="col-4">
+                {{form.for_product.label()}} {{form.for_product}}
+            </div>
+        </div>
+
+        <div class="row mb-4 mt-4">
+            <div class="col-4">
+                {{form.param_to_control.label()}} {{form.param_to_control}}
+            </div>
+            <div class="col-4">
+                {{form.type_of_control.label()}} {{form.type_of_control()}}
+            </div>
+            <div class="col-4">
+                {{form.per_cent_of_control.label()}} {{form.per_cent_of_control()}}
+            </div>
+            <div class="col-4">
+                {{form.used_si_to_control.label()}} {{form.used_si_to_control()}}
+            </div>
+        </div>
+
+        <div class="row mb-4 mt-4">
+            <div class="col-4">
+                {{form.department.label()}} {{form.department()}}
+            </div>
+            <div class="col-4">
+                {{form.place_of_control.label()}} {{form.place_of_control()}}
+            </div>
+            <div class="col-4">
+                {{form.action_after_control.label()}} {{form.action_after_control()}}
+            </div>
+        </div>
+
+
+        <form>
+            <button formaction="/qa/inc_insp_add" class="btn btn-success" type="submit">Добавить
+                позицию</button>
+
+            </div>
+
+        </form>
+    </form>
+
+</body>
+
+</html>

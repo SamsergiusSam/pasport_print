@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Параметриование приборов</title>
+</head>
+
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class="flashed-messages">
+        {% for category, message in messages %}
+        <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <h1>Параметрирование приборов</h1>
+    <div class="row mb-4">
+        <div class="col-3">
+            <a href="{{url_for('neo_param.mac_adresses')}}" class="btn btn-primary">Обновить список мак адресов</a>
+            <!-- <button type="submit" class="btn btn-primary w-100 col-3" >Обновить</button> -->
+        </div>
+    </div>
+    <form method="post" class="form-control">
+        {% for item in mac_adress_seq %}
+        <div class="row">
+            <div class="col-1 mx-2">
+                <div class="form-group">
+                    <input type="text" name="index" class="form-control" value="{{loop.index}}" readonly>
+                </div>
+            </div>
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Mac adress" value="{{item}}"
+                        name="mac_adress_{{loop.index}}" readonly>
+                </div>
+            </div>
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <select name="size_{{loop.index}}" class="form-control">
+                        <option value="1">G1,6</option>
+                        <option value="2">G2,5</option>
+                        <option value="3">G4</option>
+                        <option value="4">G5</option>
+                        <option value="5">G6</option>
+                        <option value="6">G10</option>
+                        <option value="7">G16</option>
+                        <option value="8">G25</option>
+                        <option value="9">G40</option>
+                        <option value="10">G65</option>
+                        <option value="11">G100</option>
+                    </select>
+                    <!-- <input type="text" class="form-control" placeholder="Типоразмер" name="size_{{loop.index}}"> -->
+                </div>
+            </div>
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Серийный номер"
+                        name="serial_number_{{loop.index}}">
+                </div>
+            </div>
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <select name="com_port_{{loop.index}}" class="form-control">
+                        {% for com_port in com_ports %}
+                        <option value="{{com_port}}">{{com_port}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-2 mx-2">
+                <button id="btn_param_{{loop.index}}" formaction="/neo_param/save/{{loop.index}}" target="_blank"
+                    class="btn btn-success" type="submit">Параметрировать</button>
+            </div>
+        </div>
+        <p></p>
+
+        {% endfor %}
+    </form>
+
+</body>
+
+</html>

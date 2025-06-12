@@ -1,0 +1,30 @@
+[
+    {
+        "name": "day",
+        "register": "30040"
+    },
+    {
+        "name": "month",
+        "register": "30041"
+    },
+    {
+        "name": "year",
+        "register": "30042"
+    },
+    {
+        "name": "id_1",
+        "register": "30095"
+    },
+    {
+        "name": "id_2",
+        "register": "30097"
+    },
+    {
+        "name": "id_3",
+        "register": "30099"
+    },
+    {
+        "name": "device_num",
+        "register": "40035"
+    }
+]

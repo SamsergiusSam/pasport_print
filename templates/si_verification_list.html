@@ -62,9 +62,9 @@
         <!-- Задачи -->
         {% for result in results %}
         <!-- new Date().getMonth() + 1 -->
-        <a href="si/{{result[0]}}" class="button"
-            style="text-decoration: none; color: black; text-align: center; margin: 5px; background:  {{loop.cycle('#4682B4', '#008080', '#AFEEEE', )}} ; grid-row: {{loop.index0+2}}; grid-column: {{result[8].month}} / span 1">
-            {{result[1],result[2], result[5] }}
+        <a href="si/{{result.id}}" class="button"
+            style="text-decoration: none; color: black; text-align: center; margin: 5px; background:  {{loop.cycle('#4682B4', '#008080', '#AFEEEE', )}} ; grid-row: {{loop.index0+2}}; grid-column: {{result.next_verification_date.month}} / span 1">
+            {{result.name,result.type_name, result.serial_number }}
         </a>
 
         {% endfor %}

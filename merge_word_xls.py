@@ -1,6 +1,6 @@
 from docxtpl import DocxTemplate
 # from docxcompose.composer import Composer
-from docx import Document as Document_compose
+# from docx import Document as Document_compose
 # from pypdf import PdfWriter
 from docx2pdf import convert
 import fitz
@@ -57,8 +57,8 @@ print('Information to print passports are created.\n')
 print('Total number of passports to print', len(infos))
 
 # создаем новый документ для слияния
-newDoc = Document_compose()
-newDoc.save(r'C:\Users\мвидео\python\pasport_print\final_to_print.docx')
+# newDoc = Document_compose()
+# doc.save(r'C:\Users\мвидео\python\pasport_print\final_to_print.docx')
 
 # создаем новый документ для записи собранного pdf файла
 result = fitz.open()

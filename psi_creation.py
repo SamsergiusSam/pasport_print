@@ -12,8 +12,6 @@ from docx import Document as Document_compose
 from docx2pdf import convert
 import fitz
 import time
-import win32print
-import win32api
 import requests
 import pythoncom
 
@@ -25,22 +23,22 @@ def doc_creation(info):
     pythoncom.CoInitialize()
     # загружаем шаблон паспорта
     doc = DocxTemplate(
-        r'C:\Users\мвидео\python\pasport_print\psi_template.docx')
+        r'D:\python_projects\python\pasport_print\psi_template.docx')
     # создаем новый документ для слияния
     newDoc = Document_compose()
-    newDoc.save(r'C:\Users\мвидео\python\pasport_print\psi_to_print.docx')
+    newDoc.save(r'D:\python_projects\python\pasport_print\psi_to_print.docx')
 
     # создаем новый документ для записи собранного pdf файла
     result = fitz.open()
     doc.render(info)
-    doc.save(r'C:\Users\мвидео\python\pasport_print\psi_to_add.docx')
-    convert(r"C:\Users\мвидео\python\pasport_print\psi_to_add.docx",
-            r'C:\Users\мвидео\python\pasport_print\psi_to_add.pdf')
+    doc.save(r'D:\python_projects\python\pasport_print\psi_to_add.docx')
+    convert(r"D:\python_projects\python\pasport_print\psi_to_add.docx",
+            r'D:\python_projects\python\pasport_print\psi_to_add.pdf')
 
-    with fitz.open(r'C:\Users\мвидео\python\pasport_print\psi_to_add.pdf') as mfile:
+    with fitz.open(r'D:\python_projects\python\pasport_print\psi_to_add.pdf') as mfile:
         result.insert_pdf(mfile)
     result.save(
-        r'C:\Users\мвидео\python\pasport_print\ПСИ\ПСИ №'+str(info['psiNum'])+'_'+str(info['meterNum'])+'.pdf')
+        r'D:\python_projects\python\pasport_print\ПСИ\ПСИ №'+str(info['psiNum'])+'_'+str(info['meterNum'])+'.pdf')
     return ()
 
 # загрузка данных в базу данных
@@ -59,13 +57,20 @@ def api_requst(serialNumbers, psi_person):
                 'Api-Key': 'IYYrqffqeWF9esyMvTrF586OqqywN2Dd3xk6L8vUjtUZDN46ocBM5K5TXrG4Cd58'}
             response = requests.get(url, headers=headers)
             api_info = response.json()
+            if api_info['atmPresType'] == 1:
+                atmPressPasport = "P"
+            else:
+                atmPressPasport = "*"
+
             api_info.update({'psiPerson': psi_person,
-                            'psiDate': date.today()
+                            'psiDate': date.today(),
+                             'atmPresTypePasport': atmPressPasport
                              },
                             )
+
             try:
                 cursor.execute(
-                    'INSERT INTO psi ("id", "imei", "meterNum", "meterSize", "plombNum", "psiPerson", "psiDate") VALUES (%(id)s, %(imei)s, %(meterNum)s,%(meterSize)s, %(plombNum)s, %(psiPerson)s, %(psiDate)s) ON CONFLICT DO NOTHING',
+                    'INSERT INTO psi ("id", "imei", "meterNum", "meterSize", "plombNum", "psiPerson", "psiDate", "atmPresType", "atmPresTypePasport") VALUES (%(id)s, %(imei)s, %(meterNum)s,%(meterSize)s, %(plombNum)s, %(psiPerson)s, %(psiDate)s, %(atmPresType)s, %(atmPresTypePasport)s) ON CONFLICT DO NOTHING',
                     api_info
                 )
                 conn.commit()

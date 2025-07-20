@@ -1,158 +1,203 @@
 {
     "apn": [
         1,
-        "internet.beeline.ru"
+        "internet.beeline.ru",
+        true
     ],
     "login": [
         2,
-        "beeline"
+        "beeline",
+        true
     ],
     "password": [
         3,
-        "beeline"
+        "beeline",
+        true
     ],
     "NEO_server_adress": [
         19,
-        "194.87.147.191:8500"
+        "194.87.147.191:8500",
+        true
     ],
     "MQTT_server_adress": [
         64,
-        ""
+        "",
+        false
     ],
     "minimal_signal_level": [
         40045,
-        6
+        "6",
+        true
     ],
     "minimal_temp_for_gps": [
         40046,
-        -20
+        "-20",
+        true
     ],
     "fix_connection_attempt": [
         40075,
-        1
+        "1",
+        true
     ],
     "year": [
         9701,
-        2021
+        2021,
+        false
     ],
     "month": [
         9702,
-        1
+        1,
+        false
     ],
     "day": [
         9703,
-        1
+        1,
+        false
     ],
     "hour": [
         9704,
-        13
+        13,
+        false
     ],
     "minute": [
         9705,
-        24
+        24,
+        false
     ],
     "second": [
         9706,
-        0
+        0,
+        false
     ],
     "dat_time_save": [
         9707,
-        1
+        1,
+        false
+    ],
+    "atm_pressure": [
+        40108,
+        0,
+        true
+    ],
+    "standard_pressure": [
+        40000,
+        101.325,
+        true
     ],
     "main_eror_1": [
         4011,
-        "true"
+        "true",
+        false
     ],
     "main_eror_2": [
         4013,
-        "true"
+        "true",
+        false
     ],
     "main_eror_3": [
         4014,
-        "true"
+        "true",
+        false
     ],
     "main_eror_4": [
         4015,
-        "true"
+        "true",
+        false
     ],
     "main_eror_5": [
         4021,
-        "true"
+        "true",
+        false
     ],
     "main_eror_6": [
         4022,
-        "true"
+        "true",
+        false
     ],
     "main_eror_7": [
         4030,
-        "true"
+        "true",
+        false
     ],
     "main_eror_8": [
         4033,
-        "true"
+        "true",
+        false
     ],
     "main_eror_9": [
         4035,
-        "true"
+        "true",
+        false
     ],
     "main_eror_10": [
         4038,
-        "true"
+        "true",
+        false
     ],
     "allways_on_display": [
         40023,
-        0
+        "0",
+        true
     ],
     "menu_auto_rotation": [
         40024,
-        0
+        "0",
+        true
     ],
     "work_flow_indication": [
         40044,
-        0
+        "0",
+        true
     ],
     "gas_detection": [
         40078,
-        0
+        "0",
+        true
     ],
     "temperature_period": [
         40039,
-        60
+        "60",
+        true
     ],
     "serial_number": [
         40035,
-        ""
+        "",
+        false
     ],
     "meter_size": [
         40049,
-        ""
+        "",
+        false
     ],
     "valve_type": [
         40060,
-        0
+        0,
+        false
     ],
     "valve_position": [
         40061,
-        "0"
-    ],
-    "Cp": [
-        40029,
-        "1.2345"
+        "0",
+        false
     ],
     "system_eror_1": [
         4012,
-        "true"
+        "true",
+        false
     ],
     "system_eror_2": [
         4016,
-        "true"
+        "true",
+        false
     ],
     "main_settings_save": [
         4001,
-        "true"
+        "true",
+        false
     ],
     "system_settings_save": [
         4005,
-        "true"
+        "true",
+        false
     ]
+    
 }

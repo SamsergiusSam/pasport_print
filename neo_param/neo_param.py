@@ -2,9 +2,12 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 import json
 import time
 import requests
-from neo_param.class_requests import Com_ports, Request_read, Request_write, Translate
 import hashlib
 from datetime import datetime
+
+from neo_param.class_requests import Com_ports, Request_read, Request_write, Translate
+from app_init import FlowDirect, db
+
 
 neo_param = Blueprint('neo_param', __name__, url_prefix='/neo_param',
                       static_folder='static', template_folder='templates')
@@ -59,6 +62,23 @@ async def save(index):
     size = request.form.get(f'size_{index}')
     mac_adress = request.form.get(f'mac_adress_{index}')
     com_port = request.form.get(f'com_port_{index}')
+    if request.form.get(f'flow_direction_{index}') == "1":
+        flow_direction = 1
+    else:
+        flow_direction = 2
+    status = request.form.get(f'atm_pressure_{index}')
+    # print(f'Статус переклчателя {status}')
+    # atm_pressure = request.form.get(f'atm_pressure_{index}')
+    if request.form.get(f'atm_pressure_{index}') == 'on':
+        atm_pressure = 1
+    else:
+        atm_pressure = 0
+    standard_pressure = request.form.get(f'standard_pressure_{index}')
+
+    add = FlowDirect(serial_number=serial_number,
+                     flow_direction=flow_direction)
+    db.session.add(add)
+    db.session.commit()
 
     delay = 0.5
     com = Com_ports()
@@ -141,6 +161,8 @@ async def save(index):
     parameters['minute'][1] = minute
     parameters['serial_number'][1] = serial_number
     parameters['meter_size'][1] = size
+    parameters['atm_pressure'][1] = atm_pressure
+    parameters['standard_pressure'][1] = standard_pressure
 
     parameters_from_json = list(parameters.values())
     print(parameters_from_json)
@@ -165,4 +187,37 @@ async def save(index):
             f"Запись значения {item[1]} в регистр {item[0]}. Ответ: {response}")
         print(
             f"Запись значения {item[1]} в регистр {item[0]}. Ответ: {response}")
+
+    '''для запсиси лицензии в файл registers_for_licence_activation.json записываем значения, полученные из функции
+    api_request_for_licence из файла licence.py
+    '''
+    with open(r'neo_param/registers_for_licence_activation.json', 'r') as parameters:
+        parameters = json.load(parameters)
+
     return to_html
+
+
+@neo_param.route('/param_values', methods=["GET", "POST"])
+def param_values():
+    with open(r'neo_param/registers_for_param.json', 'r') as file:
+        param_values = json.load(file)
+    # return param_values
+    return render_template('neo_param/param_values.html', param_values=param_values)
+
+
+@neo_param.route('/param_values_save', methods=["POST"])
+def param_values_save():
+    form_values = request.form
+    with open(r'neo_param/registers_for_param.json', 'r') as file:
+        old_values = json.load(file)
+
+    for key, value in form_values.items():
+
+        if value != old_values[key][1]:
+            updated_value = [old_values[key][0], value, old_values[key][2]]
+            print(updated_value)
+            old_values[key] = updated_value
+
+    with open(r'neo_param/registers_for_param.json', 'w', encoding='utf-8') as f:
+        json.dump(old_values, f, ensure_ascii=False, indent=4)
+    return redirect(url_for('.neo_param_page'))

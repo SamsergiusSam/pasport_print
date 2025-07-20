@@ -1,0 +1,502 @@
+[
+    {
+        "name": "ic",
+        "register": "22"
+    },
+    {
+        "name": "pi",
+        "register": "30095"
+    },
+    {
+        "name": "pi2",
+        "register": "30097"
+    },
+    {
+        "name": "pi3",
+        "register": "30099"
+    },
+    {
+        "name": "cp",
+        "register": "40000"
+    },
+    {
+        "name": "ck",
+        "register": "40002"
+    },
+    {
+        "name": "cdt",
+        "register": "40004"
+    },
+    {
+        "name": "cut",
+        "register": "40006"
+    },
+    {
+        "name": "dtl",
+        "register": "40008"
+    },
+    {
+        "name": "utl",
+        "register": "40010"
+    },
+    {
+        "name": "cv",
+        "register": "40018"
+    },
+    {
+        "name": "amag",
+        "register": "40020"
+    },
+    {
+        "name": "adt",
+        "register": "40021"
+    },
+    {
+        "name": "aut",
+        "register": "40022"
+    },
+    {
+        "name": "lo",
+        "register": "40023"
+    },
+    {
+        "name": "lr",
+        "register": "40024"
+    },
+    {
+        "name": "ch",
+        "register": "40016"
+    },
+    {
+        "name": "cd",
+        "register": "40017"
+    },
+    {
+        "name": "ptm",
+        "register": "40039"
+    },
+    {
+        "name": "s",
+        "register": "19"
+    },
+    {
+        "name": "shvw",
+        "register": "40044"
+    },
+    {
+        "name": "ml",
+        "register": "40045"
+    },
+    {
+        "name": "mt",
+        "register": "40046"
+    },
+    {
+        "name": "dt",
+        "register": "30135"
+    },
+    {
+        "name": "dn",
+        "register": "30136"
+    },
+    {
+        "name": "potreb",
+        "register": "12"
+    },
+    {
+        "name": "address",
+        "register": "17"
+    },
+    {
+        "name": "t",
+        "register": "30150"
+    },
+    {
+        "name": "p",
+        "register": "30152"
+    },
+    {
+        "name": "k",
+        "register": "30154"
+    },
+    {
+        "name": "svs",
+        "register": "30764"
+    },
+    {
+        "name": "sves",
+        "register": "30768"
+    },
+    {
+        "name": "ev",
+        "register": "30160"
+    },
+    {
+        "name": "ctdt",
+        "register": "30040"
+    },
+    {
+        "name": "vb",
+        "register": "30070"
+    },
+    {
+        "name": "vr",
+        "register": "30082"
+    },
+    {
+        "name": "vp",
+        "register": "30068"
+    },
+    {
+        "name": "tp",
+        "register": "30062"
+    },
+    {
+        "name": "tnb",
+        "register": "30125"
+    },
+    {
+        "name": "tb",
+        "register": "30127"
+    },
+    {
+        "name": "tt",
+        "register": "30129"
+    },
+    {
+        "name": "tl",
+        "register": "30123"
+    },
+    {
+        "name": "gsc",
+        "register": "30107"
+    },
+    {
+        "name": "tdnb",
+        "register": "30109"
+    },
+    {
+        "name": "tgnb",
+        "register": "30111"
+    },
+    {
+        "name": "gse",
+        "register": "30113"
+    },
+    {
+        "name": "gso",
+        "register": "30115"
+    },
+    {
+        "name": "td",
+        "register": "30117"
+    },
+    {
+        "name": "tg",
+        "register": "30119"
+    },
+    {
+        "name": "tbs",
+        "register": "30173"
+    },
+    {
+        "name": "tbsnb",
+        "register": "30175"
+    },
+    {
+        "name": "pn",
+        "register": "30091"
+    },
+    {
+        "name": "fv",
+        "register": "30050"
+    },
+    {
+        "name": "fvd",
+        "register": "30052"
+    },
+    {
+        "name": "depd",
+        "register": "30076"
+    },
+    {
+        "name": "dept",
+        "register": "30084"
+    },
+    {
+        "name": "depr",
+        "register": "30177"
+    },
+    {
+        "name": "im",
+        "register": "18"
+    },
+    {
+        "name": "ka",
+        "register": "40025"
+    },
+    {
+        "name": "kb",
+        "register": "40027"
+    },
+    {
+        "name": "kc",
+        "register": "40029"
+    },
+    {
+        "name": "fl",
+        "register": "40031"
+    },
+    {
+        "name": "fh",
+        "register": "40033"
+    },
+    {
+        "name": "mbc",
+        "register": "40063"
+    },
+    {
+        "name": "tbe",
+        "register": "40065"
+    },
+    {
+        "name": "tdp",
+        "register": "40067"
+    },
+    {
+        "name": "tba",
+        "register": "40069"
+    },
+    {
+        "name": "rf",
+        "register": "40071"
+    },
+    {
+        "name": "tobs",
+        "register": "40073"
+    },
+    {
+        "name": "cr",
+        "register": "40042"
+    },
+    {
+        "name": "msc",
+        "register": "40062"
+    },
+    {
+        "name": "tio",
+        "register": "40047"
+    },
+    {
+        "name": "sttl",
+        "register": "30196"
+    },
+    {
+        "name": "pc",
+        "register": "15"
+    },
+    {
+        "name": "us",
+        "register": "26"
+    },
+    {
+        "name": "lics",
+        "register": "30060"
+    },
+    {
+        "name": "smrc",
+        "register": "30093"
+    },
+    {
+        "name": "evm",
+        "register": "30072"
+    },
+    {
+        "name": "b",
+        "register": "23"
+    },
+    {
+        "name": "o",
+        "register": "24"
+    },
+    {
+        "name": "sl",
+        "register": "30049"
+    },
+    {
+        "name": "sprc",
+        "register": "30149"
+    },
+    {
+        "name": "svw",
+        "register": "30169"
+    },
+    {
+        "name": "fs",
+        "register": "40037"
+    },
+    {
+        "name": "efm",
+        "register": "40058"
+    },
+    {
+        "name": "vs",
+        "register": "30212"
+    },
+    {
+        "name": "ves",
+        "register": "30216"
+    },
+    {
+        "name": "lgfs",
+        "register": "40075"
+    },
+    {
+        "name": "sesn",
+        "register": "40076"
+    },
+    {
+        "name": "sesm",
+        "register": "40077"
+    },
+    {
+        "name": "f2g",
+        "register": "40127"
+    },
+    {
+        "name": "mgh",
+        "register": "64"
+    },
+    {
+        "name": "mg",
+        "register": "40078"
+    },
+    {
+        "name": "ufc",
+        "register": "40079"
+    },
+    {
+        "name": "pam",
+        "register": "40108"
+    },
+    {
+        "name": "fp1",
+        "register": "40080"
+    },
+    {
+        "name": "fc1",
+        "register": "40082"
+    },
+    {
+        "name": "fp2",
+        "register": "40084"
+    },
+    {
+        "name": "fc2",
+        "register": "40086"
+    },
+    {
+        "name": "fp3",
+        "register": "40088"
+    },
+    {
+        "name": "fc3",
+        "register": "40090"
+    },
+    {
+        "name": "fp4",
+        "register": "40092"
+    },
+    {
+        "name": "fc4",
+        "register": "40094"
+    },
+    {
+        "name": "fp5",
+        "register": "40096"
+    },
+    {
+        "name": "fc5",
+        "register": "40098"
+    },
+    {
+        "name": "fp6",
+        "register": "40100"
+    },
+    {
+        "name": "fc6",
+        "register": "40102"
+    },
+    {
+        "name": "fp7",
+        "register": "40104"
+    },
+    {
+        "name": "fc7",
+        "register": "40106"
+    },
+    {
+        "name": "hv",
+        "register": "30220"
+    },
+    {
+        "name": "mqtls",
+        "register": "40122"
+    },
+    {
+        "name": "mqat",
+        "register": "40123"
+    },
+    {
+        "name": "mqsrvsz",
+        "register": "40124"
+    },
+    {
+        "name": "mqcltsz",
+        "register": "40125"
+    },
+    {
+        "name": "mqprksz",
+        "register": "40126"
+    },
+    {
+        "name": "mqcid",
+        "register": "65"
+    },
+    {
+        "name": "mqusr",
+        "register": "66"
+    },
+    {
+        "name": "mqpwd",
+        "register": "67"
+    },
+    {
+        "name": "gce",
+        "register": "40128"
+    },
+    {
+        "name": "gch",
+        "register": "71"
+    },
+    {
+        "name": "lic_key_1",
+        "register": "10000"
+    },
+    {
+        "name": "lic_key_2",
+        "register": "10002"
+    },
+    {
+        "name": "lic_key_3",
+        "register": "10004"
+    },
+    {
+        "name": "lic_key_4",
+        "register": "10006"
+    },
+    {
+        "name": "lic_key_5",
+        "register": "10008"
+    }
+]

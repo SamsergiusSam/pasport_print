@@ -26,6 +26,12 @@
             <!-- <button type="submit" class="btn btn-primary w-100 col-3" >Обновить</button> -->
         </div>
     </div>
+    <div class="row mb-4">
+        <div class="col-3">
+            <a href="{{url_for('neo_param.param_values')}}" class="btn btn-primary">Значения для параметризации</a>
+            <!-- <button type="submit" class="btn btn-primary w-100 col-3" >Обновить</button> -->
+        </div>
+    </div>
     <form method="post" class="form-control">
         {% for item in mac_adress_seq %}
         <div class="row">
@@ -64,6 +70,31 @@
                         name="serial_number_{{loop.index}}">
                 </div>
             </div>
+
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <select type="text" class="form-control" placeholder="Направление потока"
+                        name="flow_direction_{{loop.index}}">
+                        <option value="1">Левый</option>
+                        <option value="2">Правый</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <input type="checkbox" id="atm_prerssure" name="atm_pressure_{{loop.index}}">
+                    <label for="atm_prerssure">Изм. атм. давления</label>
+                </div>
+            </div>
+
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="условно-постоянное по давлению"
+                        name="standard_pressure_{{loop.index}}">
+                </div>
+            </div>
+
             <div class="col-2 mx-2">
                 <div class="form-group">
                     <select name="com_port_{{loop.index}}" class="form-control">

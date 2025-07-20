@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, IntegerField
 
 
 class ParamForm(FlaskForm):
@@ -40,3 +40,15 @@ class Inc_Insp_Req(FlaskForm):
                                    'Склад', 'Производство'])
     action_after_control = SelectField('Action_after_control', choices=[
                                        'Разместить в зоне хранения'])
+
+
+class Distrib_form(FlaskForm):
+    name = StringField('Название')
+    region_to_cover = IntegerField('Код региона')
+    adress_index = IntegerField('Индекс')
+    adress_city = StringField('Город')
+    adress_street = StringField('Улица')
+    adress_house = StringField('Дом')
+    e_mail = StringField('Электронная почта')
+    phone = StringField('Контактный телефон')
+    contact_person = StringField('Контактное лицо')

@@ -1,49 +1,56 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, login_required, login_user, logout_user
 from docxtpl import DocxTemplate
-from docx import Document as Document_compose
+from datetime import datetime
 from docx2pdf import convert
 import fitz
 import time
-import win32print
-import win32api
+# import win32print
+# import win32api
 import requests
-from tech_data import techData
 import pythoncom
-import psycopg2
-from sqlalchemy import BigInteger, Column, Date, DateTime, Integer, String, Text, Boolean, create_engine, insert, select, MetaData, inspect, text, Table, extract
-from sqlalchemy.schema import MetaData
-from sqlalchemy.orm import sessionmaker
+# import psycopg2
+from sqlalchemy import extract
+# from sqlalchemy.schema import MetaData
+# from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from json.decoder import JSONDecodeError
+# from json.decoder import JSONDecodeError
 from datetime import date
-import base64
-import io
-import hashlib
+# import base64
+# import io
+# import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import pythoncom
 
 
+from tech_data import techData
 from psi_creation import main as psiCreation
-from app_init import engine, conn, si_table, app, db, User, login_manager
+from app_init import engine, conn, si_table, app, db, User, login_manager, scheduler, FlowDirect
 from neo_param.neo_param import neo_param
 from qa.qa import qa
+from production.production import production
+from climat import climat_load
+
+scheduler.start()
+
+
+# @scheduler.task('cron', id='climat_load', hour='8,14', minute=22)
+@scheduler.task('interval', id='climat_load', minutes=60)
+def my_scheduled_job():
+    climat_load()
+    print('Загрузка климатических параметров выполнена')
+
 
 app.register_blueprint(neo_param, url_prefix="/neo_param")
 app.register_blueprint(qa, url_prefix="/qa")
+app.register_blueprint(production, url_prefix="/production")
 
 
 @app.route("/")
 @login_required
 def home_page():
     return render_template("home.html")
-
-
-# @app.route("/pasport_print_page")
-# @login_required
-# def pasport_print_page():
-#     return render_template("pasport_print.html")
 
 
 @app.route("/pasport_print", methods=["POST", "GET"])
@@ -56,7 +63,7 @@ def pasport_print():
         startTime = time.time()
         # загружаем шаблон паспорта
         doc = DocxTemplate(
-            r'C:\Users\мвидео\python\pasport_print\passport_template.docx')
+            r'D:\python_projects\python\pasport_print\passport_template_july_2025.docx')
 
         ##############################################################################
         # данные для внесения в паспорт
@@ -87,28 +94,39 @@ def pasport_print():
         infos = list()
         for apiInfo in apiInfos:
             meterType = str(apiInfo['meterSize'])
-            completeInfo = {**apiInfo, **techData[meterType]}
+            flow_direction = FlowDirect.query.filter_by(
+                serial_number=apiInfo["meterNum"]).first()
+
+            if flow_direction.flow_direction == 1:
+                flow_direction_id = {"flowDirection": "Л"}
+            else:
+                flow_direction_id = {"flowDirection": "П"}
+
+            if apiInfo["atmPresType"] == 1:
+                atm_press = {"atmPress": "P"}
+            else:
+                atm_press = {"atmPress": "*"}
+
+            completeInfo = {**apiInfo, **
+                            techData[meterType], **flow_direction_id, **atm_press}
             infos.append(completeInfo)
+        print(f"Данные для печати паспорта {infos}")
         print('Information to print passports are created.\n')
         print('Total number of passports to print', len(infos))
-
-        # создаем новый документ для слияния
-        newDoc = Document_compose()
-        newDoc.save(r'C:\Users\мвидео\python\pasport_print\final_to_print.docx')
 
         # создаем новый документ для записи собранного pdf файла
         result = fitz.open()
 
         for info in infos:
             doc.render(info)
-            doc.save(r'C:\Users\мвидео\python\pasport_print\to_add.docx')
-            convert(r"C:\Users\мвидео\python\pasport_print\to_add.docx",
-                    r'C:\Users\мвидео\python\pasport_print\to_add.pdf')
+            doc.save(r'D:\python_projects\python\pasport_print\to_add.docx')
+            convert(r"D:\python_projects\python\pasport_print\to_add.docx",
+                    r'D:\python_projects\python\pasport_print\to_add.pdf')
 
-            with fitz.open(r'C:\Users\мвидео\python\pasport_print\to_add.pdf') as mfile:
+            with fitz.open(r'D:\python_projects\python\pasport_print\to_add.pdf') as mfile:
                 result.insert_pdf(mfile)
         result.save(
-            r'C:\Users\мвидео\python\pasport_print\static\pdf\result.pdf')
+            r'D:\python_projects\python\pasport_print\static\pdf\result.pdf')
 
         print('passport creation completed\n')
         print((time.time()-startTime))
@@ -126,22 +144,22 @@ def passport_prerview():
     return render_template("pasport_preview.html")
 
 
-# @app.route("/si_creation_page")
-# @login_required
-# def si_creation_page():
-#     return render_template("si_creation.html")
-
-
 @app.route("/si_creation", methods=["POST", "GET"])
 @login_required
 def si_creation():
+
+    def inventory_number_creation():
+        current_year = str(datetime.now().year)[2:]
+        counter = str(si_table.query.count()+1).zfill(2)
+        inventory_number = f'ПМ-{counter}-{current_year}'
+        return inventory_number
 
     if request.method == "POST":
         add = si_table(
             name=request.form["name"],
             type_name=request.form["type_name"],
             serial_number=request.form["serial_number"],
-            inventory_number=request.form["inventory_number"],
+            inventory_number=inventory_number_creation(),
             production_year=request.form["production_year"],
             produser=request.form["produser"],
             verification_link=request.form["verification_link"],
@@ -159,7 +177,6 @@ def si_creation():
 @app.route("/si_view_page", methods=["GET"])
 @login_required
 def si_view_page():
-
     results = si_table.query.all()
     return render_template("si_list.html", results=results)
 
@@ -204,4 +221,4 @@ def production_page():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from flask_login import LoginManager, UserMixin, current_user, login_user
+from flask_apscheduler import APScheduler
 
 
 engine = create_engine(
@@ -22,6 +23,9 @@ db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
+
+scheduler = APScheduler()
+scheduler.init_app(app)
 
 
 class si_table(db.Model):
@@ -71,14 +75,49 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
 
+class Climat(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    day = db.Column(db.Date, unique=False, nullable=False)
+    time = db.Column(db.Time, unique=False, nullable=False)
+    temperature = db.Column(db.String, unique=False, nullable=False)
+    humidity = db.Column(db.String, unique=False, nullable=False)
+    place = db.Column(db.String(50), unique=False, nullable=False)
+
+
+class FlowDirect(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    serial_number = db.Column(db.Integer, unique=True, nullable=False)
+    flow_direction = db.Column(db.Integer, unique=False, nullable=False)
+
+
+class Regions(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    region_name = db.Column(db.String(50), unique=True, nullable=False)
+    distributer = db.relationship(
+        'Distributer', backref='region', lazy='dynamic')
+
+
+class Distributer(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(200), nullable=False)
+    region_to_cover = db.Column(db.Integer, db.ForeignKey('regions.id'))
+    adress_index = db.Column(db.Integer, nullable=False)
+    adress_city = db.Column(db.String(200), nullable=False)
+    adress_street = db.Column(db.String(200), nullable=False)
+    adress_house = db.Column(db.String(200), nullable=False)
+    e_mail = db.Column(db.String(200), nullable=False)
+    phone = db.Column(db.String(200), nullable=False)
+    contact_person = db.Column(db.String(200), nullable=False)
+
+
 if __name__ == "__main__":
     with app.app_context():
-        # db.create_all()
-        password_to_add = generate_password_hash('Xnl83DoY')
-        add = User(
-            username="Корякин А.С.",
-            email="sales@pro-metrica.ru",
-            password_hash=password_to_add
-        )
-        db.session.add(add)
-        db.session.commit()
+        db.create_all()
+        # password_to_add = generate_password_hash('Xnl83DoY')
+        # add = User(
+        #     username="Корякин А.С.",
+        #     email="sales@pro-metrica.ru",
+        #     password_hash=password_to_add
+        # )
+        # db.session.add(add)
+        # db.session.commit()

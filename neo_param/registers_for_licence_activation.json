@@ -1,0 +1,35 @@
+{
+    "key_licence_1": [
+        40400,
+        "",
+        false
+    ],
+    "key_licence_2": [
+        40402,
+        "",
+        false
+    ],"key_licence_3": [
+        40404,
+        "",
+        false
+    ],"key_licence_4": [
+        40406,
+        "",
+        false
+    ],
+    "key_licence_5": [
+        40408,
+        "",
+        false
+    ],
+    "save_keys": [
+        1000,
+        1,
+        false
+    ],
+    "ble_switch_off": [
+        4048,
+        "true",
+        false
+    ]
+}

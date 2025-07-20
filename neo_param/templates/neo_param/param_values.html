@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <title>Значене параметров для параметризации</title>
+</head>
+
+<body>
+    <form method="POST" class="form-control">
+        {% for key, value in param_values.items() %}
+        {% if value[2]==true %}
+        {% if loop.index %3 ==0 %}
+        <div class="row mb-4">
+            <div class="col-3">
+                <label for="{{key}}">{{key}}:</label>
+                <input type="text" name="{{key}}" vable="{{key}}" class="form-control" value="{{value[1]}}"
+                    oninput="this.style.backgroundColor = 'pink'">
+            </div>
+            {%else%}
+            <div div class="col-3">
+                <label for="{{key}}">{{key}}:</label>
+                <input type="text" name="{{key}}" vable="{{key}}" class="form-control" value="{{value[1]}}"
+                    oninput="this.style.backgroundColor = 'pink'">
+            </div>
+
+
+        </div>
+        {% endif%}
+        {% endif %}
+        {% endfor %}
+        <button class="btn btn-success" type="submit"
+            formaction="{{url_for('neo_param.param_values_save')}}">Сохранить</button>
+
+    </form>
+</body>
+
+</html>

@@ -14,6 +14,12 @@
         "beeline",
         true
     ],
+    "Send_data_to_NEO_server":[
+        40076,
+        "1",
+        false
+    ],
+
     "NEO_server_adress": [
         19,
         "194.87.147.191:8500",
@@ -195,6 +201,12 @@
         false
     ],
     "system_settings_save": [
+        4005,
+        "true",
+        false
+    ],
+
+    "system_settings_save_2": [
         4005,
         "true",
         false

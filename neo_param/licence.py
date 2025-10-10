@@ -2,12 +2,20 @@ import requests
 import hashlib
 import json
 import time
+from urllib.parse import quote
 
-from neo_param.class_requests import Com_ports, Request_read, Request_write, Translate
+from class_requests import Com_ports, Request_read, Request_write, Translate
 
 
 def md5_calc(data_to_request):
     text = f"{data_to_request[3]}-{str(data_to_request[4]).zfill(2)}-{data_to_request[5]}-neo"
+    hash_object = hashlib.md5(text.encode('utf-8')).hexdigest()
+    return hash_object
+
+
+def md5_calc_for_licence(data_to_request):
+    text = f"{data_to_request['lic_key'][0]}-{data_to_request['lic_key'][1]}-{data_to_request['lic_key'][2]}-{data_to_request['lic_key'][3]}-{data_to_request['lic_key'][4]}-{data_to_request['timestamp']}neo"
+    print(f'конструкция для md5 {text}')
     hash_object = hashlib.md5(text.encode('utf-8')).hexdigest()
     return hash_object
 
@@ -24,13 +32,33 @@ def api_request(data_to_request):
     return api_answer
 
 
-def connect_as_producer(com_port, mac_adress):
-    delay = 0.5
+def api_request_for_licence(data_to_request, message):
+
+    url = f"https://neo-manager.ru/api/keys.php?appId={data_to_request['app_id']}&licKey={data_to_request['lic_key'][0]}-{data_to_request['lic_key'][1]}-{data_to_request['lic_key'][2]}-{data_to_request['lic_key'][3]}-{data_to_request['lic_key'][4]}&imei={data_to_request['im']}&procId={data_to_request['proc_id'][0]}-{data_to_request['proc_id'][1]}-{data_to_request['proc_id'][2]}&deviceNum={data_to_request['dn']}&deviceType={data_to_request['dt']}&message={message}&crc={data_to_request['timestamp']}.{md5_calc_for_licence(data_to_request)}"
+    print("Url for request", url)
+    headers = {
+        'Api-Key': 'IYYrqffqeWF9esyMvTrF586OqqywN2Dd3xk6L8vUjtUZDN46ocBM5K5TXrG4Cd58'}
+    response = requests.get(url, headers=headers)
+    api_answer = response.json()
+    print(api_answer)
+    if api_answer['error'] == 0:
+        key = str(api_answer['key'])
+    else:
+        print(api_answer['message'])
+
+    return key
+
+
+def com_init(com_port):
     com = Com_ports()
     com.connection_to_port(com_port)
     com.close_connection()
-    # com.connection()
+    return com
 
+
+def connect_as_producer(com_init, com_port, mac_adress):
+    delay = 0.2
+    com = com_init(com_port)
     com.device_connection(com_port, mac_adress)
 
     with open(r'neo_param/registers_for_login.json', 'r') as file:
@@ -87,27 +115,27 @@ def connect_as_producer(com_port, mac_adress):
     if response[7:11] == '0002':
         to_html.append('Авторизация прошла успешно')
     else:
-        to_html.apped('Авторизация не пройдена')
+        to_html.append('Авторизация не пройдена')
 
 
-def read_values_for_licence(com_port, mac_adress):
+def read_values_for_licence(com_init, com_port, mac_adress):
 
-    delay = 0.5
-    com = Com_ports()
-    com.connection_to_port(com_port)
-    com.close_connection()
+    delay = 0.4
+    com = com_init(com_port)
+    # com.connection_to_port(com_port)
+    # com.close_connection()
     # com.connection()
 
     com.device_connection(com_port, mac_adress)
 
     with open(r'neo_param/registers_for_licence.json', 'r') as file:
-        data_for_auth = json.load(file)
+        data_for_licence = json.load(file)
 
     with open(r'neo_param/register_type.json', 'r') as file:
         register_types_total = json.load(file)
 
     new_data_total = []
-    for data in data_for_auth:
+    for data in data_for_licence:
         register_type = register_types_total.get(data['register'])
         to_add = {'register_type': register_type}
         new_data = {**data, **to_add}
@@ -115,29 +143,75 @@ def read_values_for_licence(com_port, mac_adress):
     print('Новые данные для обработки', new_data_total)
 
     request_data = []
+    pi_list = []
+    lic_key = []
+    lic_key_hex = []
+    data_for_request = {}
     for data in new_data_total:
         request_read = Request_read(data['register'])
         action = request_read.execute()
-        print('Запрос короткий: ', action)
+        # print('Запрос короткий: ', action)
         action = bytes(':'+str(action)+'\r\n', 'utf-8')
-        print('Запрос: ', action)
-        com.device_write(action)
-        time.sleep(delay)
+        # print('Запрос: ', action)
         com.device_write(action)
         time.sleep(delay)
         response = com.device_read().decode('utf-8')
-        print('Ответ: ', response)
-        print('Регистр для расшифровки: ', data['register'])
+        if len(response) < 5:
+            com.device_write(action)
+            time.sleep(delay)
+            response = com.device_read().decode('utf-8')
+        # print('Ответ: ', response)
+        # print('Регистр для расшифровки: ', data['register'])
         answer = Translate(response, data['register'])
         translated_answer = answer.execute()
-        name = data['name']
-        request_data.append(f'##{name}##{translated_answer}##')
-    print('Данные для запроса ', request_data)
+        if data['register'] in ['30095', '30097', '30099']:
+            pi_list.append(translated_answer)
+            if len(pi_list) == 3:
+                request_data.append(
+                    f'##pi##{pi_list[0]}-{pi_list[1]}-{pi_list[2]}##')
+                data_for_request.update({'proc_id': pi_list})
+
+        elif data['register'] in ['10000', '10002', '10004', '10006', '10008']:
+            print(
+                f'Лицензии, регистр-{data["register"]}, значение-{translated_answer}')
+            lic_key.append(translated_answer)
+            lic_key_hex.append(hex(translated_answer)[2:])
+            if len(lic_key_hex) == 5:
+                data_for_request.update({'lic_key': lic_key_hex})
+
+        else:
+            if data['register'] in ['18', '30135', '30136']:
+                name = data['name']
+                data_for_request.update({name: translated_answer})
+                request_data.append(f'##{name}##{translated_answer}##')
+            else:
+                name = data['name']
+                request_data.append(f'##{name}##{translated_answer}##')
+
+        print(f"Message {request_data}")
+    result_string = ','.join(request_data)
+    meassage = quote(result_string, safe='')
+    print('Данные для запроса ', result_string)
     to_html = [f'Данные для запроса:{request_data}']
+    app_id = '21817-59705-19123'
+    data_for_request.update({'app_id': app_id})
+    timestamp = int(time.time())
+    data_for_request.update({'timestamp': timestamp})
+    print(f'Данные для url запроса {data_for_request}')
+
+    return meassage, data_for_request
 
 
-if __name__ == "__main__":
-    com_port = "COM3"
-    mac_adress = "3CA5519A6A54"
-    connect_as_producer(com_port, mac_adress)
-    read_values_for_licence(com_port, mac_adress)
+def download_licence(com_port, mac_adress, com):
+    message, data_for_request = read_values_for_licence(
+        com_port, mac_adress, com)
+    key = api_request_for_licence(data_for_request, message)
+    return key
+
+
+# if __name__ == "__main__":
+#     com_port = "COM3"
+#     mac_adress = "3CA5519A6A54"
+#     connect_as_producer(com_port, mac_adress)
+#     message, data_for_request = read_values_for_licence(com_port, mac_adress)
+#     api_request_for_licence(data_for_request, message)

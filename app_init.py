@@ -1,10 +1,13 @@
 from flask import Flask, session
+from flask_migrate import Migrate
 from sqlalchemy import create_engine, MetaData, Table
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from flask_login import LoginManager, UserMixin, current_user, login_user
 from flask_apscheduler import APScheduler
+from flask_mail import Mail
+# from flask_mailman import Mail
 
 
 engine = create_engine(
@@ -14,7 +17,8 @@ conn = psycopg2.connect(dbname="pm_production", host="pm-production-samsergius.d
                         user="samsam", password="Cfv240185", port="5432")
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production"
+# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://postgres:xf8fEl_2dI@89.109.5.208:61110/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '1234567890'
 
@@ -24,8 +28,12 @@ login_manager = LoginManager(app)
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+migrate = Migrate(app, db)
+
 scheduler = APScheduler()
 scheduler.init_app(app)
+
+Base = db.Model
 
 
 class si_table(db.Model):
@@ -88,26 +96,61 @@ class FlowDirect(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     serial_number = db.Column(db.Integer, unique=True, nullable=False)
     flow_direction = db.Column(db.Integer, unique=False, nullable=False)
+    distr_to_sell_id = db.Column(db.Integer, nullable=True)
+    meterVersion = db.Column(db.Integer)
 
 
 class Regions(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    region_name = db.Column(db.String(50), unique=True, nullable=False)
+    region_name = db.Column(db.String(100), unique=True, nullable=False)
+
+
+class Supplier_password(db.Model):
+    __tablename__ = 'supplier_password'
+    id = db.Column(db.Integer, primary_key=True)
+    password = db.Column(db.String)
     distributer = db.relationship(
-        'Distributer', backref='region', lazy='dynamic')
+        'Distributer',  # Используем точное имя класса
+        back_populates='supplier_password',
+        uselist=False
+    )
 
 
 class Distributer(db.Model):
+    __tablename__ = 'distributer'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(200), nullable=False)
-    region_to_cover = db.Column(db.Integer, db.ForeignKey('regions.id'))
-    adress_index = db.Column(db.Integer, nullable=False)
-    adress_city = db.Column(db.String(200), nullable=False)
-    adress_street = db.Column(db.String(200), nullable=False)
-    adress_house = db.Column(db.String(200), nullable=False)
-    e_mail = db.Column(db.String(200), nullable=False)
-    phone = db.Column(db.String(200), nullable=False)
-    contact_person = db.Column(db.String(200), nullable=False)
+    inn = db.Column(db.String(12), nullable=False)
+    regions = db.Column(db.JSON, nullable=True)  # Массив регионов
+    address = db.Column(db.String(1000), nullable=False)
+    email = db.Column(db.String(200))
+    phone = db.Column(db.String(20))
+    contact_person = db.Column(db.String(200))
+
+    supplier_password_id = db.Column(
+        db.Integer, db.ForeignKey('supplier_password.id'), unique=True)
+    supplier_password = db.relationship(
+        'Supplier_password',
+        back_populates='distributer',
+        uselist=False
+    )
+
+
+class psi(db.Model):
+    psiNumber = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, nullable=False)
+    imei = db.Column(db.BigInteger, unique=True, nullable=False)
+    meterNum = db.Column(db.BigInteger, unique=True, nullable=False)
+    meterSize = db.Column(db.Integer, nullable=False)
+    plombNum = db.Column(db.BigInteger, nullable=False)
+    psiPerson = db.Column(db.String(100))
+    psiDate = db.Column(db.Date)
+    atmPresType = db.Column(db.SmallInteger)
+    atmPresTypePasport = db.Column(db.String(10))
+
+    verification_done = db.Column(db.Boolean, default=False, nullable=True)
+    verification_date = db.Column(db.Date, nullable=True)
 
 
 if __name__ == "__main__":

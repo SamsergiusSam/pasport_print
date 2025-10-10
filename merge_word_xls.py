@@ -9,7 +9,7 @@ import win32print
 import win32api
 import requests
 
-from tech_data import techData
+from techData.tech_data import techData
 
 startNumber = int(input('Input the start serial number '))
 finishNumber = int(input('Input the last serial number '))

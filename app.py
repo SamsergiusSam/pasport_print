@@ -1,42 +1,37 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, login_required, login_user, logout_user
+from flask_mail import Mail, Message
 from docxtpl import DocxTemplate
 from datetime import datetime
 from docx2pdf import convert
 import fitz
 import time
-# import win32print
-# import win32api
 import requests
 import pythoncom
-# import psycopg2
 from sqlalchemy import extract
-# from sqlalchemy.schema import MetaData
-# from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-# from json.decoder import JSONDecodeError
 from datetime import date
-# import base64
-# import io
-# import hashlib
 from werkzeug.security import generate_password_hash, check_password_hash
-
 import pythoncom
 
+import pandas as pd
 
-from tech_data import techData
+
+from techData.tech_data import techData
 from psi_creation import main as psiCreation
-from app_init import engine, conn, si_table, app, db, User, login_manager, scheduler, FlowDirect
+from app_init import si_table, app, db, User, login_manager, scheduler, FlowDirect, psi
 from neo_param.neo_param import neo_param
 from qa.qa import qa
 from production.production import production
 from climat import climat_load
+from send_attached_file import send_email
+
 
 scheduler.start()
 
 
-# @scheduler.task('cron', id='climat_load', hour='8,14', minute=22)
-@scheduler.task('interval', id='climat_load', minutes=60)
+@scheduler.task('cron', id='climat_load', hour='9,14', minute=22)
+# @scheduler.task('interval', id='climat_load', minutes=60)
 def my_scheduled_job():
     climat_load()
     print('Загрузка климатических параметров выполнена')
@@ -107,8 +102,9 @@ def pasport_print():
             else:
                 atm_press = {"atmPress": "*"}
 
+            meter_version = {"meterVersion": flow_direction.meterVersion}
             completeInfo = {**apiInfo, **
-                            techData[meterType], **flow_direction_id, **atm_press}
+                            techData[meterType], **flow_direction_id, **atm_press, **meter_version}
             infos.append(completeInfo)
         print(f"Данные для печати паспорта {infos}")
         print('Information to print passports are created.\n')
@@ -220,5 +216,54 @@ def production_page():
     return render_template('production.html')
 
 
+@app.route('/for_verification')
+def for_verification_list():
+    unverify_meters = psi.query.filter_by(verification_done=False).all()
+    print(unverify_meters)
+    return render_template("for_verification.html", unverify_meters=unverify_meters)
+
+
+@app.route('/for_verification/send', methods=["GET", "POST"])
+def for_verification_send():
+    serial_number_list = []
+    meter_size_type_list = []
+    atm_pressure_type_list = []
+    verification_date_list = []
+    total_number_of_meters = int(request.form.get('total_number'))
+    number_to_send = 0
+    for i in range(1, total_number_of_meters+1):
+        to_verification_status = request.form.get(f'checkbox_{i}')
+        if to_verification_status == 'on':
+            number_to_send = number_to_send + 1
+            serial_number = request.form.get(f'serial_number_{i}')
+            meter_size = request.form.get(f'meter_size_{i}')
+            meter_size_type = techData[str(meter_size)]['type']
+            atm_pressure_type = request.form.get(f'atm_pressure_type_{i}')
+            verification_date = str(request.form.get(f'date_{i}'))
+            print(verification_date)
+            serial_number_list.append(serial_number)
+            meter_size_type_list.append(meter_size_type)
+            atm_pressure_type_list.append(atm_pressure_type)
+            verification_date_list.append(verification_date)
+    total_data_dict = dict()
+    total_data_dict = {"Date": verification_date_list, "Serial_number": serial_number_list,
+                       "Size": meter_size_type_list, "Version": atm_pressure_type_list}
+    df = pd.DataFrame(total_data_dict)
+    now = datetime.now().date()
+    name = f'for_verification_{now}_{number_to_send}'
+    path = f'files_for_verification/{name}.xlsx'
+    df.to_excel(path, index=False, engine='openpyxl')
+
+    send_email(path)
+
+    for number in serial_number_list:
+        meter = psi.query.filter_by(meterNum=number).first()
+        meter.verification_done = True
+        meter.verification_date = verification_date
+        db.session.commit()
+
+    return "File has been sent"
+
+
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)

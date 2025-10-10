@@ -64,13 +64,14 @@ def api_requst(serialNumbers, psi_person):
 
             api_info.update({'psiPerson': psi_person,
                             'psiDate': date.today(),
-                             'atmPresTypePasport': atmPressPasport
+                             'atmPresTypePasport': atmPressPasport,
+                             'verification_done': False
                              },
                             )
 
             try:
                 cursor.execute(
-                    'INSERT INTO psi ("id", "imei", "meterNum", "meterSize", "plombNum", "psiPerson", "psiDate", "atmPresType", "atmPresTypePasport") VALUES (%(id)s, %(imei)s, %(meterNum)s,%(meterSize)s, %(plombNum)s, %(psiPerson)s, %(psiDate)s, %(atmPresType)s, %(atmPresTypePasport)s) ON CONFLICT DO NOTHING',
+                    'INSERT INTO psi ("id", "imei", "meterNum", "meterSize", "plombNum", "psiPerson", "psiDate", "atmPresType", "atmPresTypePasport", "verification_done") VALUES (%(id)s, %(imei)s, %(meterNum)s,%(meterSize)s, %(plombNum)s, %(psiPerson)s, %(psiDate)s, %(atmPresType)s, %(atmPresTypePasport)s, %(verification_done)s) ON CONFLICT DO NOTHING',
                     api_info
                 )
                 conn.commit()

@@ -51,6 +51,25 @@ class Request_write:
         # Объединяем результат
         return ''.join(swapped_words)
 
+    @staticmethod
+    def swap_32bit_words(hex_str):
+        # Проверяем, что длина строки кратна 4
+        if len(hex_str) % 8 != 0:
+            raise ValueError("Длина строки должна быть кратна 8")
+
+        # Разбиваем строку на 16-битные слова
+        words = [hex_str[i:i+8] for i in range(0, len(hex_str), 8)]
+
+        # Переставляем байты в каждом слове
+        swapped_words = [word[6:] + word[4:6] +
+                         word[2:4] + word[:2] for word in words]
+
+        to_word_2 = ''.join(swapped_words)
+        words_2 = [to_word_2[i:i+8] for i in range(0, len(hex_str), 8)]
+        swapped_words_2 = [word[4:] + word[:4] for word in words_2]
+
+        return ''.join(swapped_words_2)
+
     def write_uint16(self, value):
         register_hex = hex(int(self.register))[2:]
         value_hex = hex(int(value))[2:]
@@ -86,6 +105,29 @@ class Request_write:
 # Переставляем байты в каждом слове
         swapped_words = [word[4:] + word[:4] for word in words]
         swapped_value = ' '.join(swapped_words)
+
+        print('Registr value (dec)', self.register)
+        print('Regist value (hex): ', register_hex)
+        print('Value value (dec)', value)
+        print('Value value (hex): ', value_hex)
+        print('Value value (hex): ', swapped_value)
+
+        to_lrc_calc = '0110'+str(register_hex)+'0002'+'04'+str(swapped_value)
+        print('For lrc calc ', to_lrc_calc)
+        lrc = self.calculate_lrc(to_lrc_calc)
+        print('lrc: ', lrc)
+        action = str(to_lrc_calc)+str(lrc)
+        print('Action ', action)
+        action_bytes = bytes(':'+str(action)+'\r\n', 'utf-8')
+        print('Action in bytes ', action_bytes)
+        return action_bytes
+
+    def write_uint32_licence(self, value):
+        register_hex = hex(int(self.register))[2:].zfill(4)
+        value_hex = value
+        print('Значение в шестнадцатеричной системе:', value_hex)
+
+        swapped_value = self.swap_32bit_words(value)
 
         print('Registr value (dec)', self.register)
         print('Regist value (hex): ', register_hex)
@@ -208,6 +250,43 @@ class Request_write:
         print('Action in bytes ', action_bytes)
         return action_bytes
 
+    def multi_supplier_password_register_write(self, value):
+        register_hex = hex(int(self.register))[2:]
+        print('Количество регистров (hex) ', register_hex)
+        value_hex = self.swap_16bit_words(value)
+        print('Значение с перестановкой байтов: ', value_hex)
+        to_lrc_calc = '01101F4A000A140004'+str(value_hex)+'0001'
+        print('For lrc calc ', to_lrc_calc)
+        lrc = self.calculate_lrc(to_lrc_calc)
+        print('lrc: ', lrc)
+        action = str(to_lrc_calc)+str(lrc)
+        print('Action ', action)
+        action_bytes = bytes(':'+str(action)+'\r\n', 'utf-8')
+        print('Action in bytes ', action_bytes)
+        return action_bytes
+
+    def multi_licence_register_write(self, value, number_of_registers):
+        register_hex = hex(int(self.register))[2:]
+        print('Количество регистров (hex) ', register_hex)
+        print(f'Значение value до престановки регистров {value}')
+        value_hex = self.swap_32bit_words(value)
+        print('Значение с перестановкой байтов: ', value_hex)
+        number_of_registers_hex = hex(number_of_registers)[2:].zfill(4)
+        print('Количество регистров (hex): ', number_of_registers_hex)
+        number_of_bytes = hex(number_of_registers*2)[2:]
+        print('Количество байт (hex): ', number_of_bytes)
+        to_lrc_calc = '0110'+str(register_hex) + \
+            str(number_of_registers_hex) + \
+            str(number_of_bytes)+str(value_hex)
+        print('For lrc calc ', to_lrc_calc)
+        lrc = self.calculate_lrc(to_lrc_calc)
+        print('lrc: ', lrc)
+        action = str(to_lrc_calc)+str(lrc)
+        print('Action ', action)
+        action_bytes = bytes(':'+str(action)+'\r\n', 'utf-8')
+        print('Action in bytes ', action_bytes)
+        return action_bytes
+
     # def input_float_32(self, value):
     #     number_of_registers=2
     #     register_hex = hex(int(self.register))[2:]
@@ -247,7 +326,7 @@ class Request_write:
         print('Action in bytes ', action_bytes)
         return action_bytes
 
-    def execute(self, value, number_of_registers):
+    def execute(self, value, number_of_registers=10):
         if self.type_value == 'uint16':
             print("Run uint16 class method")
             result = self.write_uint16(value)
@@ -258,9 +337,20 @@ class Request_write:
         elif self.type_value == 'multi':
             print('Run "multi" class method')
             result = self.multi_register_write(value, number_of_registers)
+        elif self.type_value == 'multi_licence':
+            print('Run "multi_licence" class method')
+            result = self.multi_licence_register_write(
+                value, number_of_registers)
+        elif self.type_value == 'multi_supplier_password':
+            print('Run "multi_supplier_password" class method')
+            result = self.multi_supplier_password_register_write(
+                value)
         elif self.type_value == 'uint32':
             result = self.write_uint32(value)
+        elif self.type_value == 'uint32_licence':
+            result = self.write_uint32_licence(value)
         elif self.type_value == 'string':
+            print('Run "string write" class method')
             result = self.write_string(value)
         elif self.type_value == 'input_float32' or self.type_value == 'float32':
             result = self.write_float32(value)
@@ -293,6 +383,20 @@ class Request_read(Request_write):
         print('Registr value (dec)', self.register)
         print('Regist value (hex): ', register_hex)
         to_lrc_calc = '0170'+str(register_hex)
+        print('For lrc calc ', to_lrc_calc)
+        lrc = self.calculate_lrc(to_lrc_calc)
+        print('lrc: ', lrc)
+        action = str(to_lrc_calc)+str(lrc)
+        print('Action ', action)
+        action_bytes = bytes(':'+str(action)+'\r\n', 'utf-8')
+        print('Action in bytes ', action_bytes)
+        return action
+
+    def read_string_imei(self):
+        register_hex = hex(int(self.register))[2:].zfill(4)
+        print('Registr value (dec)', self.register)
+        print('Regist value (hex): ', register_hex)
+        to_lrc_calc = '010112'+str(register_hex)
         print('For lrc calc ', to_lrc_calc)
         lrc = self.calculate_lrc(to_lrc_calc)
         print('lrc: ', lrc)
@@ -386,6 +490,20 @@ class Request_read(Request_write):
         print('Action in bytes ', action_bytes)
         return action
 
+    def read_input_double(self):
+        register_hex = hex(int(self.register))[2:].zfill(2)
+        print('Registr value (dec)', self.register)
+        print('Regist value (hex): ', register_hex)
+        to_lrc_calc = '0104'+str(register_hex)+'0004'
+        print('For lrc calc ', to_lrc_calc)
+        lrc = self.calculate_lrc(to_lrc_calc)
+        print('lrc: ', lrc)
+        action = str(to_lrc_calc)+str(lrc)
+        print('Action ', action)
+        action_bytes = bytes(':'+str(action)+'\r\n', 'utf-8')
+        print('Action in bytes ', action_bytes)
+        return action
+
     def execute(self):
 
         if self.type_value == 'uint16':
@@ -401,11 +519,16 @@ class Request_read(Request_write):
         elif self.type_value == 'input32':
             result = self.read_input32()
         elif self.type_value == 'string':
+            print('запрос на запись значения для чтения из string регистра')
             result = self.read_string()
         elif self.type_value == 'float32':
             result = self.read_float32()
         elif self.type_value == 'input_float32':
             result = self.read_input_float32()
+        elif self.type_value == 'input_double':
+            result = self.read_input_double()
+        elif self.type_value == 'string_imei':
+            result = self.read_string_imei()
         else:
             result = 'Нет такого типа регистра'
         return result
@@ -417,6 +540,29 @@ class Translate:
         self.register = register
 
     def translate_uint32(self):
+        hex_str = self.answer[7:15]
+        # hex_str = short_answer.replace(' ', '')
+        print('Короткий ответ :', hex_str)
+    # Проверяем, что длина строки кратна 4
+        if len(hex_str) % 8 != 0:
+            raise ValueError("Длина строки должна быть кратна 8")
+
+    # Разбиваем строку на 16-битные слова
+        words = [hex_str[i:i+8] for i in range(0, len(hex_str), 8)]
+
+    # Переставляем байты в каждом слове
+        swapped_words = [word[4:] + word[:4] for word in words]
+        hex_data_str = ' '.join(swapped_words)
+        hex_data = bytes.fromhex(hex_data_str)
+    # Разделяем байты пробелами для читаемости
+        hex_string = ' '.join(f'{byte:02X}' for byte in hex_data)
+
+        result = int(hex_string.replace(' ', ''), 16)
+    # Объединяем результат
+        return result
+
+    def translate_input32(self):
+        print(f'Полный ответ {self.answer}')
         hex_str = self.answer[7:15]
         # hex_str = short_answer.replace(' ', '')
         print('Короткий ответ :', hex_str)
@@ -457,9 +603,20 @@ class Translate:
         return decimal_value
 
     def translate_string(self):
-        data = self.answer[11:-6]
-        print('Строка данных ', data)
-        result = bytes.fromhex(data).decode('utf-8')
+        print('Процесс расшифровки ответа типа string')
+        print(f'ответ для расшифровки {self.answer}')
+        data = self.answer.replace(' ', '')[:-4][11:]
+        print(f'Короткий ответ {data}')
+        try:
+            result = bytes.fromhex(data).decode('ascii')
+            print(f'расшифрованный ответ {result}')
+        except UnicodeDecodeError:
+
+            # Затем пробуем cp1251 для кириллицы
+            result = bytes.fromhex(data).decode('cp1251')
+            print(f'расшифрованный ответ {result}')
+        except ValueError:
+            pass
         return result
 
     def translate_float32(self):
@@ -475,20 +632,43 @@ class Translate:
 
         return result
 
+    def translate_input_double(self):
+        print(f'Полный ответ {self.answer}')
+        shot_answer = self.answer[7:23]
+        print('Короткий ответ ', shot_answer)
+        swapped_words = shot_answer[12:16] + \
+            shot_answer[8:12] + shot_answer[4:8] + shot_answer[:4]
+        print('Переставленные слова ', swapped_words)
+        # Конвертация hex в float
+        float_value = struct.unpack('!d', bytes.fromhex(swapped_words))[0]
+
+        # Конвертация float в Decimal
+        result = Decimal(str(float_value))
+
+        return result
+
     def execute(self):
         self.type_value = type_value[str(self.register)]
 
         if (self.type_value == 'uint16') or (self.type_value == 'input16'):
+            print("Функция расшифровки для uint16 и input16")
             result = self.translate_uint16()
         elif self.type_value == 'int16':
+            print("Функция расшифровки для int16")
             result = self.translate_int16()
         elif (self.type_value == 'input32') or (self.type_value == 'uint32'):
+            print("Функция расшифровки для uint32 и uint32")
             result = self.translate_uint32()
-        elif self.type_value == 'string':
+        elif (self.type_value == 'string') or (self.type_value == 'string_imei'):
+            print("Функция расшифровки для string и string_imei")
             result = self.translate_string()
         elif self.type_value == 'float32' or (self.type_value == 'input_float32'):
-            print('run float32 translate')
+            print("Функция расшифровки для float32 и input_float32")
+            # print('run float32 translate')
             result = self.translate_float32()
+        elif self.type_value == 'input_double':
+            print('run float32 translate')
+            result = self.translate_input_double()
         else:
             result = 'Нет такого типа регистра'
         return result
@@ -503,7 +683,8 @@ class Com_ports:
         ports = serial.tools.list_ports.comports()
         ports_list = list()
         for port in ports:
-            ports_list.append(port.name)
+            if port.name != 'COM1':
+                ports_list.append(port.name)
         print('Список обнаруженных портов: ', ports_list)
 
         if len(ports_list) == 0:

@@ -10,15 +10,15 @@
 
 
 <body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    <ul class="flashed-messages">
-        {% for category, message in messages %}
-        <li class="flash-{{ category }}">{{ message }}</li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        {% endif %}
     {% endwith %}
+
+
     <h1>Параметрирование приборов</h1>
     <div class="row mb-4">
         <div class="col-3">
@@ -37,18 +37,21 @@
         <div class="row">
             <div class="col-1 mx-2">
                 <div class="form-group">
-                    <input type="text" name="index" class="form-control" value="{{loop.index}}" readonly>
+                    <label for="index"></label>
+                    <input type="text" name="index" class="form-control" value="{{loop.index}}" id="index" readonly>
                 </div>
             </div>
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Mac adress" value="{{item}}"
+                    <lable for="mac_address">Мак адрес прибора</lable>
+                    <input type="text" class="form-control" placeholder="Mac address" value="{{item}}" id="vac_address"
                         name="mac_adress_{{loop.index}}" readonly>
                 </div>
             </div>
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <select name="size_{{loop.index}}" class="form-control">
+                    <label for="size">Типоразмер</label>
+                    <select name="size_{{loop.index}}" class="form-control" id="size">
                         <option value="1">G1,6</option>
                         <option value="2">G2,5</option>
                         <option value="3">G4</option>
@@ -64,16 +67,30 @@
                     <!-- <input type="text" class="form-control" placeholder="Типоразмер" name="size_{{loop.index}}"> -->
                 </div>
             </div>
+
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="Серийный номер"
+                    <label for="meter_version">Исполнение</label>
+                    <select type="text" class="form-control" id="meter_version" placeholder="Исполнение счетчика"
+                        name="meter_version_{{loop.index}}">
+                        <option value="1">Исполнение 1</option>
+                        <option value="2">Исполнение 2</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-2 mx-2">
+                <label for="serial_number">Серийный номер</label>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Серийный номер" id="serial_number"
                         name="serial_number_{{loop.index}}">
                 </div>
             </div>
 
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <select type="text" class="form-control" placeholder="Направление потока"
+                    <label for="flow_direction">Направление потока</label>
+                    <select type="text" class="form-control" id="flow_direction" placeholder="Направление потока"
                         name="flow_direction_{{loop.index}}">
                         <option value="1">Левый</option>
                         <option value="2">Правый</option>
@@ -83,21 +100,34 @@
 
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <input type="checkbox" id="atm_prerssure" name="atm_pressure_{{loop.index}}">
                     <label for="atm_prerssure">Изм. атм. давления</label>
+                    <input type="checkbox" id="atm_prerssure_checkbox" name="atm_pressure_{{loop.index}}">
                 </div>
             </div>
 
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <input type="text" class="form-control" placeholder="условно-постоянное по давлению"
-                        name="standard_pressure_{{loop.index}}">
+                    <label for="atm_pressure_value">Условно-постоянное значение давления</label>
+                    <input type="text" class="form-control" id="atm_prerssure_value" name="standard_pressure_{{loop.index}}" placeholder = "101.325" disabled>
                 </div>
             </div>
 
             <div class="col-2 mx-2">
                 <div class="form-group">
-                    <select name="com_port_{{loop.index}}" class="form-control">
+                    <label for='distr'>Дилер</label>
+                    <select name="distr_{{loop.index}}" class="form-control" id="distr">
+                        <option>Выберите дилера</option>
+                        {% for distr in list_of_distr %}
+                        <option value="{{distr}}">{{distr}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-2 mx-2">
+                <div class="form-group">
+                    <label for='com_port'>Порт для параметризации</label>
+                    <select name="com_port_{{loop.index}}" class="form-control" id="com_port">
                         {% for com_port in com_ports %}
                         <option value="{{com_port}}">{{com_port}}</option>
                         {% endfor %}
@@ -105,6 +135,7 @@
                 </div>
             </div>
             <div class="col-2 mx-2">
+                <label for="btn_param_{{loop.index}}"></label>
                 <button id="btn_param_{{loop.index}}" formaction="/neo_param/save/{{loop.index}}" target="_blank"
                     class="btn btn-success" type="submit">Параметрировать</button>
             </div>
@@ -113,7 +144,25 @@
 
         {% endfor %}
     </form>
+<script>
+    const checkbox = document.getElementById("atm_prerssure_checkbox");
+    const input =document.getElementById("atm_prerssure_value");
 
+    checkbox.addEventListener('change', function() {
+        input.disabled = !checkbox.checked;
+    }
+)
+</script>
+
+<script>
+    function replaceCommaWithDot(input) {
+        input.value = input.value.replace(/,/g, '.');
+}
+
+    document.getElementById('atm_prerssure_value').addEventListener('input', function() {
+        replaceCommaWithDot(this);
+});
+</script>
 </body>
 
 </html>

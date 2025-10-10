@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 from datetime import date, datetime
 import psycopg2
 from sqlalchemy import BigInteger, Column, Date, DateTime, Integer, String, Text, create_engine, insert, select, MetaData, inspect, text, Table
@@ -59,3 +60,8 @@ def api_requst(serialNumbers, psi_person):
 
 if __name__ == "__main__":
     api_requst([10250089], "Усков С.В.")
+=======
+from werkzeug.security import generate_password_hash
+result = generate_password_hash('12345')
+print(result)
+>>>>>>> 50ce6fe9a97951b885ed68516bcc6a004d8a66b7

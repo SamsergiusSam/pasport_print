@@ -3,6 +3,7 @@ from flask_migrate import Migrate
 from sqlalchemy import create_engine, MetaData, Table
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
+
 import psycopg2
 from flask_login import LoginManager, UserMixin, current_user, login_user
 from flask_apscheduler import APScheduler

@@ -138,7 +138,9 @@
                     <td>{{ result.production_year}}</td>
                     <td>
                         <a href="{{ result.verification_link }}" target="_blank">
+                        <a href="{{ result.verification_link }}" target="_blank">
                             <div>
+                                {{ result.verification_link }}
                                 {{ result.verification_link }}
                             </div>
 
@@ -146,7 +148,10 @@
                     </td>
                     <td>{{ result.next_verification_date }}</td>
                     <td>{{ result.group }}</td>
+                    <td>{{ result.next_verification_date }}</td>
+                    <td>{{ result.group }}</td>
                     <td>
+                        <a href="si/{{result.id}}" class="button" style="text-decoration: none;">>>></a>
                         <a href="si/{{result.id}}" class="button" style="text-decoration: none;">>>></a>
                     </td>
 

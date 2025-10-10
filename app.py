@@ -44,11 +44,13 @@ app.register_blueprint(production, url_prefix="/production")
 
 @app.route("/")
 @login_required
+@login_required
 def home_page():
     return render_template("home.html")
 
 
 @app.route("/pasport_print", methods=["POST", "GET"])
+@login_required
 @login_required
 def pasport_print():
     pythoncom.CoInitialize()
@@ -136,11 +138,13 @@ def pasport_print():
 
 @app.route("/pasport_preview")
 @login_required
+@login_required
 def passport_prerview():
     return render_template("pasport_preview.html")
 
 
 @app.route("/si_creation", methods=["POST", "GET"])
+@login_required
 @login_required
 def si_creation():
 
@@ -172,6 +176,7 @@ def si_creation():
 
 @app.route("/si_view_page", methods=["GET"])
 @login_required
+@login_required
 def si_view_page():
     results = si_table.query.all()
     return render_template("si_list.html", results=results)
@@ -179,7 +184,11 @@ def si_view_page():
 
 @app.route("/si/<int:si_id>")
 @login_required
+@login_required
 def si_individual(si_id):
+
+    result = si_table.query.filter_by(id=si_id).first()
+    return (result.name)
 
     result = si_table.query.filter_by(id=si_id).first()
     return (result.name)
@@ -187,8 +196,11 @@ def si_individual(si_id):
 
 @app.route("/si_verification_list")
 @login_required
+@login_required
 def si_verification_list():
     year = date.today().year
+    results = si_table.query.filter(
+        extract('year', si_table.next_verification_date) == year).all()
     results = si_table.query.filter(
         extract('year', si_table.next_verification_date) == year).all()
     return render_template("si_verification_list.html", results=results)

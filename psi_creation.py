@@ -14,6 +14,9 @@ import fitz
 import time
 import requests
 import pythoncom
+import subprocess
+
+from app_init import path_of
 
 engine = create_engine(
     "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production", echo=False)
@@ -32,8 +35,16 @@ def doc_creation(info):
     result = fitz.open()
     doc.render(info)
     doc.save(r'D:\python_projects\python\pasport_print\psi_to_add.docx')
-    convert(r"D:\python_projects\python\pasport_print\psi_to_add.docx",
-            r'D:\python_projects\python\pasport_print\psi_to_add.pdf')
+    # convert(r"D:\python_projects\python\pasport_print\psi_to_add.docx",
+    #         r'D:\python_projects\python\pasport_print\psi_to_add.pdf')
+
+    subprocess.run([
+        path_of,
+        "--headless",
+        "--convert-to", "pdf",
+        "--outdir", "./",
+        "to_add.docx"
+    ])
 
     with fitz.open(r'D:\python_projects\python\pasport_print\psi_to_add.pdf') as mfile:
         result.insert_pdf(mfile)

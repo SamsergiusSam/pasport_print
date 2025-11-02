@@ -1,30 +1,25 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, login_required, login_user, logout_user
-from flask_mail import Mail, Message
 from docxtpl import DocxTemplate
 from datetime import datetime
-from docx2pdf import convert
-import fitz
 import time
 import requests
-import pythoncom
 from sqlalchemy import extract
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
-import pythoncom
-
 import pandas as pd
 
 
 from techData.tech_data import techData
-from psi_creation import main as psiCreation
+from psi_creation_new import main as psiCreation
 from app_init import si_table, app, db, User, login_manager, scheduler, FlowDirect, psi
 from neo_param.neo_param import neo_param
 from qa.qa import qa
 from production.production import production
 from climat import climat_load
 from send_attached_file import send_email
+from functions import doc_creation
 
 
 scheduler.start()
@@ -53,20 +48,11 @@ def home_page():
 @login_required
 @login_required
 def pasport_print():
-    pythoncom.CoInitialize()
+    # pythoncom.CoInitialize()
     if request.method == "POST":
         start_number = int(request.form["start_number"])
         finish_number = int(request.form["finish_number"])
         startTime = time.time()
-        # загружаем шаблон паспорта
-        doc = DocxTemplate(
-            r'D:\python_projects\python\pasport_print\passport_template_july_2025.docx')
-
-        ##############################################################################
-        # данные для внесения в паспорт
-        ##############################################################################
-
-        # данные о типе, серийном номере и электронной пломбе. будем получать по api с сервера
 
         def api_requst(serialNumbers):
 
@@ -112,19 +98,7 @@ def pasport_print():
         print('Information to print passports are created.\n')
         print('Total number of passports to print', len(infos))
 
-        # создаем новый документ для записи собранного pdf файла
-        result = fitz.open()
-
-        for info in infos:
-            doc.render(info)
-            doc.save(r'D:\python_projects\python\pasport_print\to_add.docx')
-            convert(r"D:\python_projects\python\pasport_print\to_add.docx",
-                    r'D:\python_projects\python\pasport_print\to_add.pdf')
-
-            with fitz.open(r'D:\python_projects\python\pasport_print\to_add.pdf') as mfile:
-                result.insert_pdf(mfile)
-        result.save(
-            r'D:\python_projects\python\pasport_print\static\pdf\result.pdf')
+        doc_creation('passport_template_november_2025.docx', infos)
 
         print('passport creation completed\n')
         print((time.time()-startTime))
@@ -186,9 +160,6 @@ def si_view_page():
 @login_required
 @login_required
 def si_individual(si_id):
-
-    result = si_table.query.filter_by(id=si_id).first()
-    return (result.name)
 
     result = si_table.query.filter_by(id=si_id).first()
     return (result.name)

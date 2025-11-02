@@ -11,17 +11,19 @@ from flask_mail import Mail
 # from flask_mailman import Mail
 
 
-engine = create_engine(
-    "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production", echo=False)
+# engine = create_engine(
+#     "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production", echo=False)
 
-conn = psycopg2.connect(dbname="pm_production", host="pm-production-samsergius.db-msk0.amvera.tech",
-                        user="samsam", password="Cfv240185", port="5432")
+# conn = psycopg2.connect(dbname="pm_production", host="pm-production-samsergius.db-msk0.amvera.tech",
+#                         user="samsam", password="Cfv240185", port="5432")
 
 app = Flask(__name__)
-# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production"
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://postgres:xf8fEl_2dI@89.109.5.208:61110/postgres"
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://samsam:Cfv240185@pm-production-samsergius.db-msk0.amvera.tech/pm_production"
+# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://postgres:xf8fEl_2dI@89.109.5.208:61110/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '1234567890'
+
+path_of = r'C:\Program Files\LibreOffice\program\soffice.exe'
 
 
 db = SQLAlchemy(app)
@@ -136,6 +138,28 @@ class Distributer(db.Model):
         back_populates='distributer',
         uselist=False
     )
+    # distributer_settings = db.relationship('Disrtibuter_settings', back_populate='distributer', uselist=False)
+
+
+# class Disrtibuter_settings(db.Model):
+#     __tablename__ = 'distributer_settings'
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     distr_id = db.Column(db.Integer, db.ForeignKey(
+#         'distributer.id'), uniques=True)
+#     apn = db.Column(db.String(50))
+#     login = db.Column(db.String(50))
+#     password = db.Column(db.String(50))
+#     neo_server_adress = db.Column(db.String(100))
+#     mqtt_server_adress = db.Column(db.String(50))
+#     minimal_signal_level = db.Column(db.String(10))
+#     minimal_temp_for_gps = db.Column(db.String(10))
+#     allways_on_display = db.Column(db.String(10))
+#     menu_auto_rotation = db.Column(db.String(10))
+#     work_flow_indication = db.Column(db.String(10))
+#     atm_pressure = db.Column(db.String(10))
+#     standard_pressure = db.Column(db.String(10))
+
+    # distributer = db.relationship('Distributer', back_populate='distributer_settings', uselist=False)
 
 
 class psi(db.Model):
@@ -149,9 +173,19 @@ class psi(db.Model):
     psiDate = db.Column(db.Date)
     atmPresType = db.Column(db.SmallInteger)
     atmPresTypePasport = db.Column(db.String(10))
-
+    valveType = db.Column(db.SmallInteger)
     verification_done = db.Column(db.Boolean, default=False, nullable=True)
     verification_date = db.Column(db.Date, nullable=True)
+    verification_date_actual = db.Column(db.Date)
+    number_of_verifications = db.Column(db.SmallInteger)
+
+
+class passport_version(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    start_date = db.Column(db.Date, nullable=True)
+    finish_date = db.Column(db.Date, nullable=True)
+    file_name = db.Column(db.String(100))
+    actual_temlate = db.Column(db.Boolean)
 
 
 if __name__ == "__main__":

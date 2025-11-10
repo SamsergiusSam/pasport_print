@@ -71,16 +71,19 @@ def api_requst(serialNumbers, psi_person):
                              },
                             )
 
-            exists = db.session.query(db.session.query(psi).filter_by(
+            exists_imei = db.session.query(db.session.query(psi).filter_by(
                 imei=api_info['imei']).exists()).scalar()
+            exists_meter_number = db.session.query(db.session.query(psi).filter_by(
+                meterNum=api_info['meterNum']).exists()).scalar()
 
-            if not exists:
+            if not exists_imei:
 
                 add = psi(**api_info)
                 db.session.add(add)
                 db.session.commit()
 
             else:
+                print(f"Данные по {api_info['imei']} в базе есть")
                 pass
 
         except JSONDecodeError:
@@ -107,14 +110,14 @@ def psi_from_db(serialNumbers):
         doc_creation(to_doc)
 
 
-def main(startNumber, finishNumber):
+def main(serial_numbers):
 
-    numbers = list()
-    for i in range(startNumber, finishNumber+1):
-        numbers.append(i)
+    # numbers = list()
+    # for i in serial_numbers:
+    #     numbers.append(i)
 
-    api_requst(numbers, "Усков С.В.")
-    psi_from_db(numbers)
+    api_requst(serial_numbers, "Усков С.В.")
+    psi_from_db(serial_numbers)
 
 
 if __name__ == '__main__':

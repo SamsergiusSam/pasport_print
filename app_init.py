@@ -3,7 +3,7 @@ from flask_migrate import Migrate
 from sqlalchemy import create_engine, MetaData, Table
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from datetime import timedelta
 import psycopg2
 from flask_login import LoginManager, UserMixin, current_user, login_user
 from flask_apscheduler import APScheduler
@@ -22,6 +22,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://samsam:Cfv240185@
 # app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql+psycopg2://postgres:xf8fEl_2dI@89.109.5.208:61110/postgres"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = '1234567890'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 
 path_of = r'C:\Program Files\LibreOffice\program\soffice.exe'
 
@@ -78,6 +79,8 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
+    # 'production', 'quality', 'metrology', 'management'
+    role = db.Column(db.String(50), nullable=False, default='production')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -130,36 +133,38 @@ class Distributer(db.Model):
     email = db.Column(db.String(200))
     phone = db.Column(db.String(20))
     contact_person = db.Column(db.String(200))
-
     supplier_password_id = db.Column(
         db.Integer, db.ForeignKey('supplier_password.id'), unique=True)
+    distributer_settings_id = db.Column(
+        db.Integer, db.ForeignKey('distributer_settings.id'), unique=True)
+
     supplier_password = db.relationship(
         'Supplier_password',
         back_populates='distributer',
         uselist=False
     )
-    # distributer_settings = db.relationship('Disrtibuter_settings', back_populate='distributer', uselist=False)
+    distributer_settings = db.relationship(
+        'Distributer_settings', back_populates='distributer', uselist=False)
 
 
-# class Disrtibuter_settings(db.Model):
-#     __tablename__ = 'distributer_settings'
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     distr_id = db.Column(db.Integer, db.ForeignKey(
-#         'distributer.id'), uniques=True)
-#     apn = db.Column(db.String(50))
-#     login = db.Column(db.String(50))
-#     password = db.Column(db.String(50))
-#     neo_server_adress = db.Column(db.String(100))
-#     mqtt_server_adress = db.Column(db.String(50))
-#     minimal_signal_level = db.Column(db.String(10))
-#     minimal_temp_for_gps = db.Column(db.String(10))
-#     allways_on_display = db.Column(db.String(10))
-#     menu_auto_rotation = db.Column(db.String(10))
-#     work_flow_indication = db.Column(db.String(10))
-#     atm_pressure = db.Column(db.String(10))
-#     standard_pressure = db.Column(db.String(10))
+class Distributer_settings(db.Model):
+    __tablename__ = 'distributer_settings'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    apn = db.Column(db.String(50))
+    login = db.Column(db.String(50))
+    password = db.Column(db.String(50))
+    neo_server_adress = db.Column(db.String(100))
+    mqtt_server_adress = db.Column(db.String(50))
+    minimal_signal_level = db.Column(db.String(10))
+    minimal_temp_for_gps = db.Column(db.String(10))
+    allways_on_display = db.Column(db.String(10))
+    menu_auto_rotation = db.Column(db.String(10))
+    work_flow_indication = db.Column(db.String(10))
+    atm_pressure = db.Column(db.String(10))
+    standard_pressure = db.Column(db.String(10))
 
-    # distributer = db.relationship('Distributer', back_populate='distributer_settings', uselist=False)
+    distributer = db.relationship(
+        'Distributer', back_populates='distributer_settings', uselist=False)
 
 
 class psi(db.Model):
@@ -185,7 +190,7 @@ class passport_version(db.Model):
     start_date = db.Column(db.Date, nullable=True)
     finish_date = db.Column(db.Date, nullable=True)
     file_name = db.Column(db.String(100))
-    actual_temlate = db.Column(db.Boolean)
+    actual_template = db.Column(db.Boolean)
 
 
 if __name__ == "__main__":

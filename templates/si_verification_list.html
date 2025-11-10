@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,67 +7,194 @@
     <style>
         .gantt {
             display: grid;
-            grid-template-columns: repeat(12, minmax(0, 1fr));
-            background: repeating-linear-gradient(to right,
-                    #513939,
+            grid-template-columns: repeat(12, 1fr);
+            gap: 6px;
+            background: repeating-linear-gradient(90deg,
+                    #ddd 0,
                     #ddd 2px,
-                    #fff 2px,
-                    #fff 8.333%);
+                    transparent 2px,
+                    transparent 8.333%);
+            padding: 10px;
+            margin: 20px auto;
+            max-width: none; /* убираем ограничение ширины */
+            font-family: Arial, sans-serif;
+            min-width: 1200px;
         }
-
 
         .gantt .head {
             text-align: center;
             font-weight: 700;
             color: #fff;
             background: #103a99;
-            padding: 10px;
+            padding: 12px 10px;
+            border-radius: 4px;
         }
 
-
-        .gantt div {
-            padding: 10px;
-        }
-
-
-        .gantt div[style] {
+        .task {
+            padding: 6px;
             border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            font-size: 14px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            font-size: 13px;
+            color: white;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .task-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .more-button {
+            background: #888 !important;
+            color: white;
+            font-size: 12px;
+            padding: 4px !important;
+            cursor: pointer;
+        }
+
+        .hidden-tasks {
+            display: flex;
+            flex-direction: column;
+            margin-top: 4px;
+        }
+
+        .color-1 { background-color: #4682B4; }
+        .color-2 { background-color: #008080; }
+        .color-3 { background-color: #AFEEEE; }
+
+        /* Кнопка не видна при печати и в PDF */
+        .no-print {
+            display: none !important;
+        }
+
+        /* Для просмотра на экране кнопка видна */
+        @media screen {
+            .no-print {
+                display: block !important;
+                margin: 20px auto;
+                padding: 10px 20px;
+                font-size: 16px;
+                background-color: #103a99;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                text-align: center;
+                width: 200px;
+            }
+            .no-print:hover {
+                background-color: #0c2a77;
+            }
         }
     </style>
-
 </head>
-
 <body>
-    <div class="container-fluid" style="text-align: center;">
-        <h2> График поверки оборудования на 2025 год</h2>
+    <div class="container-fluid" style="text-align: center; margin-bottom: 20px;">
+        <h2>График поверки оборудования на 2025 год</h2>
     </div>
-    <div class="gantt">
-        <!-- Дни недели -->
-        <div class="head">Январь</div>
-        <div class="head">Февраль</div>
-        <div class="head">Март</div>
-        <div class="head">Апрель</div>
-        <div class="head">Май</div>
-        <div class="head">Июнь</div>
-        <div class="head">Июль</div>
-        <div class="head">Август</div>
-        <div class="head">Сентябрь</div>
-        <div class="head">Октябрь</div>
-        <div class="head">Ноябрь</div>
-        <div class="head">Декабрь</div>
 
-        <!-- Задачи -->
-        {% for result in results %}
-        <!-- new Date().getMonth() + 1 -->
-        <a href="si/{{result.id}}" class="button"
-            style="text-decoration: none; color: black; text-align: center; margin: 5px; background:  {{loop.cycle('#4682B4', '#008080', '#AFEEEE', )}} ; grid-row: {{loop.index0+2}}; grid-column: {{result.next_verification_date.month}} / span 1">
-            {{result.name,result.type_name, result.serial_number }}
-        </a>
+    <!-- Кнопка для сохранения в PDF (не будет видна в PDF) -->
+    <button class="no-print" onclick="generatePDF()">Сохранить как PDF</button>
 
-        {% endfor %}
-    </div>
+    <div class="gantt" id="gantt"></div>
+
+    <!-- Подключаем html2pdf -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        // Пример данных (замените на ваш контекст шаблонизатора)
+        const results = [
+            {% for result in results %}
+                {
+                    id: "{{ result.id }}",
+                    name: "{{ result.name }}",
+                    type_name: "{{ result.type_name }}",
+                    serial_number: "{{ result.serial_number }}",
+                    month: {{ result.next_verification_date.month }}
+                },
+            {% endfor %}
+        ].filter(r => r.month >= 1 && r.month <= 12);
+
+        // Группировка по месяцам
+        const months = Array(12).fill().map(() => []);
+        results.forEach(result => {
+            const monthIndex = result.month - 1;
+            months[monthIndex].push(result);
+        });
+
+        // Цвета
+        const colors = ['color-1', 'color-2', 'color-3'];
+
+        // Заполняем грид
+        const gantt = document.getElementById('gantt');
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+        // Заголовки месяцев
+        monthNames.forEach(name => {
+            const head = document.createElement('div');
+            head.className = 'head';
+            head.textContent = name;
+            gantt.appendChild(head);
+        });
+
+        // Добавление задач
+        months.forEach((tasks, monthIdx) => {
+            const container = document.createElement('div');
+            container.className = 'task-container';
+            container.style.gridColumn = monthIdx + 1;
+
+            tasks.sort((a, b) => a.name.localeCompare(b.name));
+
+            tasks.forEach((task, index) => {
+                const taskEl = document.createElement('a');
+                taskEl.href = `si/${task.id}`;
+                taskEl.className = `task ${colors[index % colors.length]}`;
+                taskEl.title = `${task.name}, ${task.type_name}, ${task.serial_number}`;
+                taskEl.innerHTML = `<strong>${task.name}</strong><br>
+                                   <small>${task.type_name}, ${task.serial_number}</small>`;
+                container.appendChild(taskEl);
+            });
+
+            gantt.appendChild(container);
+        });
+
+        // Функция генерации PDF
+        function generatePDF() {
+            // Перед генерацией — раскрываем все скрытые элементы (если были)
+            document.querySelectorAll('.hidden-tasks').forEach(el => {
+                el.style.display = 'flex';
+            });
+            document.querySelectorAll('.more-button').forEach(btn => {
+                btn.style.display = 'none'; // скрываем кнопки "ещё", они не нужны
+            });
+
+            const opt = {
+                margin: [10, 5, 10, 5], // верх, право, низ, лево
+                filename: 'grafik_poverki_2025.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2, // качество рендера
+                    useCORS: true,
+                    logging: false,
+                    width: document.body.scrollWidth,
+                    height: document.body.scrollHeight,
+                    scrollY: 0,
+                    scrollX: 0
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'l' // альбомная ориентация
+                },
+                pagebreak: { mode: ['avoid-all'] } // не разрывать блоки
+            };
+
+            // Генерация PDF из всей видимой области body
+            html2pdf().set(opt).from(document.body).save();
+        }
+    </script>
 </body>
-
 </html>

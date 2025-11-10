@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_login import LoginManager, login_required, login_user, logout_user
-from docxtpl import DocxTemplate
+from functools import wraps
+from flask_login import login_required, login_user, logout_user, current_user
 from datetime import datetime
 import time
 import requests
@@ -13,13 +13,13 @@ import pandas as pd
 
 from techData.tech_data import techData
 from psi_creation_new import main as psiCreation
-from app_init import si_table, app, db, User, login_manager, scheduler, FlowDirect, psi
+from app_init import si_table, app, db, User, scheduler, FlowDirect, psi
 from neo_param.neo_param import neo_param
 from qa.qa import qa
 from production.production import production
 from climat import climat_load
 from send_attached_file import send_email
-from functions import doc_creation
+from functions import doc_creation, verification_actual_date, parse_number_input
 
 
 scheduler.start()
@@ -32,13 +32,37 @@ def my_scheduled_job():
     print('Загрузка климатических параметров выполнена')
 
 
+@scheduler.task('cron', id='verification_load', hour=14, minute=30)
+def my_scheduled_job_verification():
+    verification_actual_date()
+    print('Обновленние данных о поверках выполнено')
+
+
 app.register_blueprint(neo_param, url_prefix="/neo_param")
 app.register_blueprint(qa, url_prefix="/qa")
 app.register_blueprint(production, url_prefix="/production")
 
 
+def role_required(*roles):
+    def wrapper(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('login'))
+            if current_user.role not in roles:
+                flash("У вас недостаточно прав для доступа к этой странице.", "danger")
+                return redirect(url_for('home_page'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return wrapper
+
+
+@app.context_processor
+def inject_user():
+    return {'current_user': current_user}
+
+
 @app.route("/")
-@login_required
 @login_required
 def home_page():
     return render_template("home.html")
@@ -46,12 +70,19 @@ def home_page():
 
 @app.route("/pasport_print", methods=["POST", "GET"])
 @login_required
-@login_required
+@role_required('quality', 'management')
 def pasport_print():
-    # pythoncom.CoInitialize()
+
     if request.method == "POST":
-        start_number = int(request.form["start_number"])
-        finish_number = int(request.form["finish_number"])
+        raw_input = request.form.get('numbers_input', '').strip()
+
+        number_list = parse_number_input(raw_input)
+        print(number_list)
+        print(type(number_list))
+
+        if not number_list:
+            flash("Не указано ни одного корректного номера.", "danger")
+            return render_template('pasport_print.html'), 400
         startTime = time.time()
 
         def api_requst(serialNumbers):
@@ -69,7 +100,7 @@ def pasport_print():
             return apiInfos
 
         numbers = list()
-        for i in range(start_number, finish_number+1):
+        for i in number_list:
             numbers.append(i)
             apiInfos = api_requst(numbers)
 
@@ -98,11 +129,11 @@ def pasport_print():
         print('Information to print passports are created.\n')
         print('Total number of passports to print', len(infos))
 
-        doc_creation('passport_template_november_2025.docx', infos)
+        doc_creation(infos)
 
         print('passport creation completed\n')
         print((time.time()-startTime))
-        psiCreation(start_number, finish_number)
+        psiCreation(number_list)
 
         return redirect("/pasport_preview")
 
@@ -112,14 +143,14 @@ def pasport_print():
 
 @app.route("/pasport_preview")
 @login_required
-@login_required
+@role_required('quality', 'management')
 def passport_prerview():
     return render_template("pasport_preview.html")
 
 
 @app.route("/si_creation", methods=["POST", "GET"])
 @login_required
-@login_required
+@role_required('metrology', 'management')
 def si_creation():
 
     def inventory_number_creation():
@@ -150,7 +181,7 @@ def si_creation():
 
 @app.route("/si_view_page", methods=["GET"])
 @login_required
-@login_required
+@role_required('metrology', 'management')
 def si_view_page():
     results = si_table.query.all()
     return render_template("si_list.html", results=results)
@@ -158,7 +189,7 @@ def si_view_page():
 
 @app.route("/si/<int:si_id>")
 @login_required
-@login_required
+@role_required('metrology', 'management')
 def si_individual(si_id):
 
     result = si_table.query.filter_by(id=si_id).first()
@@ -167,7 +198,7 @@ def si_individual(si_id):
 
 @app.route("/si_verification_list")
 @login_required
-@login_required
+@role_required('metrology', 'management')
 def si_verification_list():
     year = date.today().year
     results = si_table.query.filter(
@@ -188,18 +219,28 @@ def login():
             flash('Please check your login details and try again.')
             return redirect(url_for('login_page'))
 
-        login_user(user)
+        login_user(user, remember=True)  # или permanent=True
+        session.permanent = True  # Это активирует PERMANENT_SESSION_LIFETIME
         return redirect('/')
 
     return render_template('login_page.html')
 
 
+@app.route('/logout')
+def logout():
+    logout_user()  # Завершает сессию пользователя
+    flash("Вы успешно вышли из системы", "info")
+    return redirect(url_for('login'))  # Перенаправление на страницу входа
+
+
 @app.route('/production')
+@role_required('production', 'management')
 def production_page():
     return render_template('production.html')
 
 
 @app.route('/for_verification')
+@role_required('production', 'quality', 'management')
 def for_verification_list():
     unverify_meters = psi.query.filter_by(verification_done=False).all()
     print(unverify_meters)
@@ -207,21 +248,28 @@ def for_verification_list():
 
 
 @app.route('/for_verification/send', methods=["GET", "POST"])
+@role_required('production', 'quality', 'management')
 def for_verification_send():
     serial_number_list = []
     meter_size_type_list = []
     atm_pressure_type_list = []
     verification_date_list = []
-    total_number_of_meters = int(request.form.get('total_number'))
+
+    total_number_str = request.form.get('total_number', '').strip()
+    print(total_number_str)
+    if not total_number_str.isdigit():
+        return "Ошибка: не указано количество приборов", 400
+    total_number_of_meters = int(total_number_str)
+
     number_to_send = 0
     for i in range(1, total_number_of_meters+1):
         to_verification_status = request.form.get(f'checkbox_{i}')
         if to_verification_status == 'on':
             number_to_send = number_to_send + 1
-            serial_number = request.form.get(f'serial_number_{i}')
-            meter_size = request.form.get(f'meter_size_{i}')
+            serial_number = request.form.get(f'meterNum_{i}')
+            meter_size = request.form.get(f'meterSize_{i}')
             meter_size_type = techData[str(meter_size)]['type']
-            atm_pressure_type = request.form.get(f'atm_pressure_type_{i}')
+            atm_pressure_type = request.form.get(f'atmPresTypePasport_{i}')
             verification_date = str(request.form.get(f'date_{i}'))
             print(verification_date)
             serial_number_list.append(serial_number)

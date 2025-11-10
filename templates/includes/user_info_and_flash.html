@@ -1,0 +1,71 @@
+<!-- Отображение flash-сообщений -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 300px; font-family: 'Montserrat', sans-serif;">
+      {% for category, message in messages %}
+        <div class="flash-message" style="
+          padding: 12px 16px;
+          margin-bottom: 8px;
+          border-radius: 8px;
+          font-size: 0.95em;
+          font-weight: 500;
+          color: white;
+          background:
+            {% if category == 'error' %}#e74c3c
+            {% elif category == 'warning' %}#f39c12
+            {% elif category == 'info' %}#3498db
+            {% else %}#27ae60
+            {% endif %};
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+          border-left: 4px solid #c0392b;
+          opacity: 1;
+          transition: opacity 0.3s ease;
+        ">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+
+    <script>
+      setTimeout(function() {
+        document.querySelectorAll('.flash-message').forEach(el => {
+          el.style.opacity = '0';
+          setTimeout(() => el.remove(), 300);
+        });
+      }, 5000);
+    </script>
+  {% endif %}
+{% endwith %}
+
+<!-- Информация о пользователе
+<div class="user-info" style="
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  font-size: 0.9em;
+  color: #555;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 900;
+  max-width: 260px;
+  text-align: right;
+">
+  {% if current_user.is_authenticated %}
+    <div style="line-height: 1.5;">
+      <div>
+        Логин: <strong>{{ current_user.username }}</strong><br>
+        Роль: <strong>{{ current_user.role }}</strong>
+      </div>
+      <a href="{{ url_for('logout') }}"
+         style="display: inline-block; margin-top: 6px; color: #e74c3c; font-weight: 600; text-decoration: none; font-size: 0.9em;"
+         onmouseover="this.style.color='#c0392b'"
+         onmouseout="this.style.color='#e74c3c'">
+        🔒 Выйти
+      </a>
+    </div>
+  {% else %}
+    Гость
+  {% endif %}
+</div> -->

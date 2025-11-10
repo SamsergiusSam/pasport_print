@@ -116,7 +116,6 @@ async def save(index):
     com = Com_ports()
     com.connection_to_port(com_port)
     com.close_connection()
-    # com.connection()
 
     com.device_connection(com_port, mac_adress)
     flash("Параметризация прибора", 'info')

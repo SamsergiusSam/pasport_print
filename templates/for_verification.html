@@ -1,59 +1,166 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <title>Приборы на поверку</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+        }
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #4e73df, #224abe);
+            color: white;
+            font-weight: 600;
+            font-size: 1.25rem;
+            padding: 1rem 1.5rem;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table thead th {
+            background-color: #f1f3f5;
+            color: #495057;
+            font-weight: 600;
+            vertical-align: middle;
+            text-align: center;
+        }
+        .table tbody td {
+            vertical-align: middle;
+            text-align: center;
+        }
+        .form-control {
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.95rem;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-success {
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .input-group {
+            max-width: 300px;
+        }
+        .input-group .btn {
+            border-radius: 8px;
+        }
+        .checkbox-cell {
+            width: 100px;
+        }
+    </style>
+    <script>
+        function fillAllDates() {
+            const dateValue = document.getElementById('common-date').value;
+            if (!dateValue) {
+                alert('Пожалуйста, выберите дату');
+                return;
+            }
+            const dateInputs = document.querySelectorAll("input[name^='date_']");
+            dateInputs.forEach(input => {
+                input.value = dateValue;
+            });
+        }
+    </script>
 </head>
-
-
 <body>
-    <h1>Неповеренные приборы</h1>
-    {% set total_meters = unverify_meters|length %}
-    <form method="POST" action="">
-    <table class="table table-striped table-bordered table-hover">
-            <thead style="text-align: center;">
-                <tr>
-                    <th>Номер по порядку</th>
-                    <th>Серийный номер</th>
-                    <th>Типоразмер</th>
-                    <th>Исполнение</th>
-                    <th> Дата поверки</th>
-                    <th>Включить в поверку</th>                   
-                </tr>
-            </thead>
-            <tbody style="text-align: center;">
-                {% for meter in unverify_meters %}
-                <tr>
-                    <td>{{loop.index}}</td>
-                    <td>
-                        <input type="text" value ="{{ meter.meterNum}}" name="serial_number_{{loop.index}}" readonly>
-                    </td>
-                    <td>
-                        <input type="text" value ="{{ meter.meterSize}}" name="meter_size_{{loop.index}}" readonly>
-                    </td>
-                    <td>
-                        <input type="text" value ="{{ meter.atmPresTypePasport}}" name="atm_pressure_type_{{loop.index}}" readonly>
-                    </td>
-                    <td>
-                        <input type="date" id="date_{{ loop.index }}" name="date_{{ loop.index }}">
-                    </td>
-                    <td>
-                        <input type="checkbox" name="checkbox_{{ loop.index }}">
-                    </td>
-                   
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-       
-        <input type="hidden" value="{{ total_meters }}" name="total_number" readonly>
-    </div>
-    <button id="save" formaction="/for_verification/send" target="_blank"
-                    class="btn btn-success" type="submit">Передать</button>
-</form>
-</body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-speedometer2"></i> Неповеренные приборы</span>
+            </div>
+            <div class="card-body p-0">
+                <form method="POST" action="">
+                    <!-- Блок общей даты -->
+                    <div class="p-3 bg-white border-bottom">
+                        <div class="input-group">
+                            <label for="common-date" class="input-group-text bg-light">Установить дату для всех:</label>
+                            <input type="date" id="common-date" class="form-control">
+                            <button type="button" class="btn btn-primary" onclick="fillAllDates()">
+                                <i class="bi bi-check-all"></i> Применить
+                            </button>
+                        </div>
+                    </div>
 
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Серийный номер</th>
+                                    <th>Типоразмер</th>
+                                    <th>Исполнение</th>
+                                    <th>Дата поверки</th>
+                                    <th class="checkbox-cell">
+                                        <i class="bi bi-check-circle-fill text-success"></i>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for meter in unverify_meters %}
+                                <tr>
+                                    <td><strong>{{ loop.index }}</strong></td>
+                                    <td>{{ meter.meterNum }}
+                                            <input type="hidden" name="meterNum_{{ loop.index }}" value="{{ meter.meterNum }}">
+                                    </td>
+                                    <td>{{ meter.meterSize }}
+                                            <input type="hidden" name="meterSize_{{ loop.index }}" value="{{ meter.meterSize }}">
+                                    </td>
+                                    <td>{{ meter.atmPresTypePasport }}
+                                            <input type="hidden" name="atmPresTypePasport_{{ loop.index }}" value="{{ meter.atmPresTypePasport }}">
+                                    </td>
+                                    <td>
+                                        <input type="date" name="date_{{ loop.index }}" class="form-control form-control-sm" style="padding: 0.3rem;" required>
+                                    </td>
+                                    <td>
+                                        <div class="form-check d-flex justify-content-center">
+                                            <input class="form-check-input" type="checkbox" name="checkbox_{{ loop.index }}">
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-3 bg-white border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted">Всего приборов: <strong>{{ unverify_meters|length }}</strong></small>
+                        <input type="hidden" name="total_number" value="{{ unverify_meters|length }}">
+                        <button 
+                            id="save" 
+                            formaction="/for_verification/send" 
+                            target="_blank" 
+                            class="btn btn-success btn-lg">
+                            <i class="bi bi-send"></i> Передать на поверку
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
